@@ -16,7 +16,7 @@ export const Saturn = () => {
 
   // Saturn's ring geometry and material
   const ringGeometry = new THREE.RingGeometry(120, 180, 64);
-  const ringTexture = textureLoader.load("/textures/saturnring.jpg"); // Ring texture
+  const ringTexture = textureLoader.load("/textures/saturnring.png"); // Ring texture
   const ringMaterial = new THREE.MeshBasicMaterial({
     map: ringTexture,
     side: THREE.DoubleSide, // To make sure the ring is visible from both sides
