@@ -5,14 +5,28 @@ import * as THREE from "three";
 import { Sun } from "../components/Sun";
 import { Stars } from "../components/Stars";
 import { Mercury } from "../components/Mercury";
+import { Venus } from "../components/Venus"; 
+import { Earth } from "../components/Earth"; 
+import { Jupiter } from "../components/Jupiter"; 
+import { Saturn } from "../components/Saturn"; 
+import { Uranus } from "../components/Uranus"; 
+import { Neptune } from "../components/Neptune"; 
+
+
+interface Planet {
+  name: string;
+  radius: number;
+  angle: number;
+  speed: number;
+  mesh: THREE.Object3D;
+}
 
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [followMercury, setFollowMercury] = useState(false); // Estado para seguir a Mercurio
+  const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   let rotationX = 0, rotationY = 0;
-  let zoomDistance = 1700; // Zoom inicial
-  let mercuryAngle = 0;
-  
+  let zoomDistance = 1700;
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -26,26 +40,75 @@ export default function Home() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvasRef.current.appendChild(renderer.domElement);
 
-    // Añadir el Sol
+    // Sol
     const sun = Sun();
     scene.add(sun);
 
-    // Crear la órbita de Mercurio
-    const mercuryOrbitGeometry = new THREE.TorusGeometry(2000, 0.7, 16, 100);
-    const mercuryOrbitMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      wireframe: true,
-    });
-    const mercuryOrbit = new THREE.Mesh(mercuryOrbitGeometry, mercuryOrbitMaterial);
-    mercuryOrbit.rotation.x = Math.PI / 2;
-    scene.add(mercuryOrbit);
-
-    // Crear el planeta Mercurio
-    const mercury = Mercury();
-    scene.add(mercury);
-
+    // Estrellas
     const stars = Stars();
     scene.add(stars);
+
+    // Lista de planetas
+    const planets: Planet[] = [
+      {
+        name: "Mercury",
+        radius: 1800,
+        angle: 0,
+        speed: 0.00001,
+        mesh: Mercury(),
+      },
+      {
+        name: "Venus",
+        radius: 2300,
+        angle: 0,
+        speed: 0.00001, 
+        mesh: Venus(),
+      },
+      {
+        name: "Earth",
+        radius: 2700,
+        angle: 0,
+        speed: 0.00001,
+        mesh: Earth(),
+      },
+      {
+        name: "Jupiter",
+        radius: 3100,
+        angle: 0,
+        speed: 0.00001,
+        mesh: Jupiter(),
+      },
+      {
+        name: "Saturn",
+        radius: 3500,
+        angle: 0,
+        speed: 0.00001, 
+        mesh: Saturn(),
+      },
+      {
+        name: "Uranus",
+        radius: 4000,
+        angle: 0,
+        speed: 0.00001, 
+        mesh: Uranus(),
+      },
+      {
+        name: "Neptune",
+        radius: 4500,
+        angle: 0,
+        speed: 0.00001, 
+        mesh: Neptune(),
+      }
+    ];
+
+    planets.forEach(({ mesh, radius }) => {
+      scene.add(mesh);
+      const orbitGeometry = new THREE.TorusGeometry(radius, 0.7, 16, 100);
+      const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+      const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+      orbit.rotation.x = Math.PI / 2;
+      scene.add(orbit);
+    });
 
     let isDragging = false;
     let previousMouseX = 0, previousMouseY = 0;
@@ -73,7 +136,6 @@ export default function Home() {
       isDragging = false;
     };
 
-    // Detección de clic en Mercurio
     const onClick = (event: MouseEvent) => {
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -82,55 +144,55 @@ export default function Home() {
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObject(mercury);
-      if (intersects.length > 0) {
-        // Si se hace clic en Mercurio, empezar a seguirlo
-        setFollowMercury(true);
+      for (const planet of planets) {
+        const intersects = raycaster.intersectObject(planet.mesh);
+        if (intersects.length > 0) {
+          setFollowedPlanet(planet.name);
+          return;
+        }
       }
     };
 
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
-    window.addEventListener("click", onClick); 
+    window.addEventListener("click", onClick);
 
-    // Zoom handling with smooth zooming
-    const MIN_ZOOM = 10;
-    const MAX_ZOOM = 10000;
-
+    // Zoom
+    const MIN_ZOOM = 10, MAX_ZOOM = 10000;
     const onScroll = (event: WheelEvent) => {
       zoomDistance += event.deltaY * 0.3;
       zoomDistance = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomDistance));
     };
-
     window.addEventListener("wheel", onScroll);
 
+    // Animación
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Actualizar el ángulo de Mercurio para que se mueva a lo largo de la órbita
-      mercuryAngle += 0.00001; 
-      if (mercuryAngle > 2 * Math.PI) mercuryAngle -= 2 * Math.PI;
+      // Mover planetas en sus órbitas
+      planets.forEach((planet) => {
+        planet.angle += planet.speed;
+        if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
 
-      const mercuryRadius = 2000;
-      const mercuryX = mercuryRadius * Math.cos(mercuryAngle);
-      const mercuryZ = mercuryRadius * Math.sin(mercuryAngle);
-      mercury.position.set(mercuryX, 0, mercuryZ);
+        const x = planet.radius * Math.cos(planet.angle);
+        const z = planet.radius * Math.sin(planet.angle);
+        planet.mesh.position.set(x, 0, z);
+        planet.mesh.rotation.y += 0.002; // Rotación propia
+      });
 
-      // Hacer que Mercurio gire sobre sí mismo
-      mercury.rotation.y += 0.002; // Gira Mercurio sobre su eje Y
-
-      // Si se está siguiendo a Mercurio, mover la cámara con él
-      if (followMercury) {
-        // Usar la rotación de la cámara manual (igual que con el Sol)
+      // Cámara sigue al planeta seleccionado
+      const targetPlanet = planets.find(p => p.name === followedPlanet);
+      if (targetPlanet) {
+        const { mesh } = targetPlanet;
         const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
         const y = zoomDistance * Math.sin(rotationY);
         const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
         
-        camera.position.set(mercuryX + x, y, mercuryZ + z); // La cámara sigue a Mercurio
-        camera.lookAt(mercury.position);
+        camera.position.set(mesh.position.x + x, y, mesh.position.z + z);
+        camera.lookAt(mesh.position);
       } else {
-        // Movimiento de la cámara manual cuando no se sigue a Mercurio
+        // Cámara manual si no sigue un planeta
         const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
         const y = zoomDistance * Math.sin(rotationY);
         const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
@@ -140,15 +202,14 @@ export default function Home() {
 
       renderer.render(scene, camera);
     };
-
     animate();
 
+    // Manejo de redimensionamiento
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     };
-
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -160,7 +221,7 @@ export default function Home() {
       window.removeEventListener("click", onClick);
       canvasRef.current?.removeChild(renderer.domElement);
     };
-  }, [followMercury]);
+  }, [followedPlanet]);
 
   return <div ref={canvasRef} className="w-full h-screen" />;
 }
