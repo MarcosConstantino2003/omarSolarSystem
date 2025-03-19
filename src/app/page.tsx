@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import Head from "next/head";
 import { Sun } from "../components/Sun";
 import { Stars } from "../components/Stars";
 import { Mercury } from "../components/Mercury";
@@ -229,5 +230,13 @@ export default function Home() {
     };
   }, [followedPlanet]);
 
-  return <div ref={canvasRef} className="w-full h-screen" />;
+  return (
+    <>
+      <Head>
+        <title>Omar's Solar System</title>
+        <meta name="description" content="A 3D simulation of the solar system" />
+      </Head>
+      <div ref={canvasRef} className="w-full h-screen" />
+    </>
+  );
 }
