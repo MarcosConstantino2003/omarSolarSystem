@@ -1,0 +1,50 @@
+Mercury 
+Diameter: (4,879 ÷ 1,391,000) × 2000 ≈ 7.02 units → Radius ≈ 3.51
+Distance: (57,910,000 ÷ 1,391,000) × 2000 ≈ 83,260 units
+
+Venus
+Diameter: (12,104 ÷ 1,391,000) × 2000 ≈ 17.40 units → Radius ≈ 8.70
+Distance: (108,200,000 ÷ 1,391,000) × 2000 ≈ 155,532 units
+
+Earth
+Diameter: (12,742 ÷ 1,391,000) × 2000 ≈ 18.32 units → Radius ≈ 9.16
+Distance: (149,600,000 ÷ 1,391,000) × 2000 ≈ 215,098 units
+
+Mars
+Diameter: (6,792 ÷ 1,391,000) × 2000 ≈ 9.76 units → Radius ≈ 4.88
+Distance: (227,900,000 ÷ 1,391,000) × 2000 ≈ 327,606 units
+
+Jupiter
+Diameter: (139,820 ÷ 1,391,000) × 2000 ≈ 201.01 units → Radius ≈ 100.50
+Distance: (778,500,000 ÷ 1,391,000) × 2000 ≈ 1,119,338 units
+
+Saturn
+Diameter: (116,460 ÷ 1,391,000) × 2000 ≈ 167.43 units → Radius ≈ 83.72
+Distance: (1,433,000,000 ÷ 1,391,000) × 2000 ≈ 2,060,244 units
+
+Uranus
+Diameter: (50,724 ÷ 1,391,000) × 2000 ≈ 72.95 units → Radius ≈ 36.48
+Distance: (2,872,000,000 ÷ 1,391,000) × 2000 ≈ 4,128,612 units
+
+Neptune
+Diameter: (49,244 ÷ 1,391,000) × 2000 ≈ 70.81 units → Radius ≈ 35.41
+Distance: (4,498,000,000 ÷ 1,391,000) × 2000 ≈ 6,468,008 units
+
+
+
+
+Lunas (algunas lunas de Júpiter):
+
+Luna (de la Tierra): 2.50 unidades
+Ío: 2.60 unidades
+Europa: 2.25 unidades
+Ganimedes: 3.80 unidades
+Calisto: 3.45 unidades
+
+Planetas enanos:
+
+Pluton: 0.9
+Ceres: 0.375
+Haumea: 0.6
+Makemake: 0.7
+Eris: 0.9
