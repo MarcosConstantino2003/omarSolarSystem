@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Sun } from "../components/Sun";
 import { Stars } from "../components/Stars";
@@ -8,10 +8,11 @@ import { Mercury } from "../components/Mercury";
 
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [followMercury, setFollowMercury] = useState(false); // Estado para seguir a Mercurio
   let rotationX = 0, rotationY = 0;
-  let zoomDistance = 1700;
-  let mercuryAngle = 0;  // Ángulo inicial de Mercurio
-
+  let zoomDistance = 1700; // Zoom inicial
+  let mercuryAngle = 0;
+  
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -32,7 +33,7 @@ export default function Home() {
     // Crear la órbita de Mercurio
     const mercuryOrbitGeometry = new THREE.TorusGeometry(2000, 0.7, 16, 100);
     const mercuryOrbitMaterial = new THREE.MeshBasicMaterial({
-      color: 0xaaaaaa,
+      color: 0xffffff,
       wireframe: true,
     });
     const mercuryOrbit = new THREE.Mesh(mercuryOrbitGeometry, mercuryOrbitMaterial);
@@ -72,14 +73,30 @@ export default function Home() {
       isDragging = false;
     };
 
+    // Detección de clic en Mercurio
+    const onClick = (event: MouseEvent) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObject(mercury);
+      if (intersects.length > 0) {
+        // Si se hace clic en Mercurio, empezar a seguirlo
+        setFollowMercury(true);
+      }
+    };
+
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("click", onClick); 
 
     // Zoom handling with smooth zooming
-    const MIN_ZOOM = 500;
+    const MIN_ZOOM = 10;
     const MAX_ZOOM = 10000;
-    const ZOOM_SPEED = 300;
 
     const onScroll = (event: WheelEvent) => {
       zoomDistance += event.deltaY * 0.3;
@@ -92,21 +109,34 @@ export default function Home() {
       requestAnimationFrame(animate);
 
       // Actualizar el ángulo de Mercurio para que se mueva a lo largo de la órbita
-      mercuryAngle += 0.01;  // Aumentar el ángulo, controla la velocidad de la órbita
-      if (mercuryAngle > 2 * Math.PI) mercuryAngle -= 2 * Math.PI;  // Mantener el ángulo dentro de 0 a 2π
+      mercuryAngle += 0.00001; 
+      if (mercuryAngle > 2 * Math.PI) mercuryAngle -= 2 * Math.PI;
 
-      // Calcular la nueva posición de Mercurio
-      const mercuryRadius = 2000;  // Radio de la órbita
-      const mercuryX = mercuryRadius * Math.cos(mercuryAngle);  // Posición en X
-      const mercuryZ = mercuryRadius * Math.sin(mercuryAngle);  // Posición en Z
-      mercury.position.set(mercuryX, 0, mercuryZ);  // Actualizar la posición de Mercurio
+      const mercuryRadius = 2000;
+      const mercuryX = mercuryRadius * Math.cos(mercuryAngle);
+      const mercuryZ = mercuryRadius * Math.sin(mercuryAngle);
+      mercury.position.set(mercuryX, 0, mercuryZ);
 
-      // Movimiento de la cámara
-      const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
-      const y = zoomDistance * Math.sin(rotationY);
-      const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
-      camera.position.set(x, y, z);
-      camera.lookAt(sun.position);
+      // Hacer que Mercurio gire sobre sí mismo
+      mercury.rotation.y += 0.002; // Gira Mercurio sobre su eje Y
+
+      // Si se está siguiendo a Mercurio, mover la cámara con él
+      if (followMercury) {
+        // Usar la rotación de la cámara manual (igual que con el Sol)
+        const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
+        const y = zoomDistance * Math.sin(rotationY);
+        const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
+        
+        camera.position.set(mercuryX + x, y, mercuryZ + z); // La cámara sigue a Mercurio
+        camera.lookAt(mercury.position);
+      } else {
+        // Movimiento de la cámara manual cuando no se sigue a Mercurio
+        const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
+        const y = zoomDistance * Math.sin(rotationY);
+        const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
+        camera.position.set(x, y, z);
+        camera.lookAt(sun.position);
+      }
 
       renderer.render(scene, camera);
     };
@@ -127,9 +157,10 @@ export default function Home() {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("wheel", onScroll);
+      window.removeEventListener("click", onClick);
       canvasRef.current?.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [followMercury]);
 
   return <div ref={canvasRef} className="w-full h-screen" />;
 }
