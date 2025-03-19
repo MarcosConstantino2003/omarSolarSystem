@@ -5,12 +5,12 @@ import * as THREE from "three";
 import { Sun } from "../components/Sun";
 import { Stars } from "../components/Stars";
 import { Mercury } from "../components/Mercury";
-import { Venus } from "../components/Venus"; 
-import { Earth } from "../components/Earth"; 
-import { Jupiter } from "../components/Jupiter"; 
-import { Saturn } from "../components/Saturn"; 
-import { Uranus } from "../components/Uranus"; 
-import { Neptune } from "../components/Neptune"; 
+import { Venus } from "../components/Venus";
+import { Earth } from "../components/Earth";
+import { Jupiter } from "../components/Jupiter";
+import { Saturn } from "../components/Saturn";
+import { Uranus } from "../components/Uranus";
+import { Neptune } from "../components/Neptune";
 
 
 interface Planet {
@@ -25,7 +25,11 @@ export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   let rotationX = 0, rotationY = 0;
-  let zoomDistance = 1700;
+  const INITIAL_ZOOM = 1700;
+  const PLANET_ZOOM = 100;
+
+
+
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -34,7 +38,9 @@ export default function Home() {
     scene.background = new THREE.Color(0x000000);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-    camera.position.set(0, 0, zoomDistance);
+    camera.position.set(3000, 4000, 3000); // Vista inicial en diagonal
+    camera.lookAt(0, 0, 0);
+    let zoomDistance = INITIAL_ZOOM;
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -54,49 +60,49 @@ export default function Home() {
         name: "Mercury",
         radius: 1800,
         angle: 0,
-        speed: 0.00001,
+        speed: 0.0001,
         mesh: Mercury(),
       },
       {
         name: "Venus",
         radius: 2300,
         angle: 0,
-        speed: 0.00001, 
+        speed: 0.0003,
         mesh: Venus(),
       },
       {
         name: "Earth",
         radius: 2700,
         angle: 0,
-        speed: 0.00001,
+        speed: 0.0005,
         mesh: Earth(),
       },
       {
         name: "Jupiter",
         radius: 3100,
         angle: 0,
-        speed: 0.00001,
+        speed: 0.001,
         mesh: Jupiter(),
       },
       {
         name: "Saturn",
         radius: 3500,
         angle: 0,
-        speed: 0.00001, 
+        speed: 0.0015,
         mesh: Saturn(),
       },
       {
         name: "Uranus",
         radius: 4000,
         angle: 0,
-        speed: 0.00001, 
+        speed: 0.002,
         mesh: Uranus(),
       },
       {
         name: "Neptune",
         radius: 4500,
         angle: 0,
-        speed: 0.00001, 
+        speed: 0.0022,
         mesh: Neptune(),
       }
     ];
@@ -188,7 +194,7 @@ export default function Home() {
         const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
         const y = zoomDistance * Math.sin(rotationY);
         const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
-        
+
         camera.position.set(mesh.position.x + x, y, mesh.position.z + z);
         camera.lookAt(mesh.position);
       } else {
