@@ -60,10 +60,42 @@ export default function Home() {
     const ambientLight = new THREE.AmbientLight(0x404040, 1); // Gris oscuro, intensidad baja
     scene.add(ambientLight);
 
+    const createTextTexture = (text: string) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+    
+      canvas.width = 256;
+      canvas.height = 256;
+    
+      if (ctx) {
+        ctx.fillStyle = "black"; // Fondo negro
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+        ctx.fillStyle = "white"; // Texto blanco
+        ctx.font = "24px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      }
+    
+      const texture = new THREE.CanvasTexture(canvas);
+      return texture;
+    };
+    
+    const textTexture = createTextTexture("easter egg decirle a omar");
+    
+    const testCubeMaterials = [
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+      new THREE.MeshBasicMaterial({ map: textTexture }),
+    ];
+    
     const testCubeGeometry = new THREE.BoxGeometry(100, 100, 100);
-    const testCubeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterial);
-    testCube.position.set(500, 0, 0); // Near the Sun
+    const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterials);
+    testCube.position.set(500, 0, 0); // Cerca del Sol
     scene.add(testCube);
 
     // Estrellas
