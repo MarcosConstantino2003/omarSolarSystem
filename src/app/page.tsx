@@ -13,6 +13,8 @@ import { Jupiter } from "../components/Jupiter";
 import { Saturn } from "../components/Saturn";
 import { Uranus } from "../components/Uranus";
 import { Neptune } from "../components/Neptune";
+import './globals.css';
+
 
 
 interface Planet {
@@ -40,6 +42,9 @@ export default function Home() {
     camera.position.set(3000, 4000, 3000); // Vista inicial en diagonal
     camera.lookAt(0, 0, 0);
     let zoomDistance = INITIAL_ZOOM;
+
+    console.log("Planeta seguido:", followedPlanet);
+
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -272,13 +277,56 @@ export default function Home() {
     };
   }, [followedPlanet]);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const planetNames: { [key: string]: string } = {
+    Mercury: "Mercurio",
+    Venus: "Venus",
+    Earth: "Tierra",
+    Mars: "Marte",
+    Jupiter: "Júpiter",
+    Saturn: "Saturno",
+    Uranus: "Urano",
+    Neptune: "Neptuno",
+    Sun: "Sol",
+  };
+  
   return (
     <>
       <Head>
         <title>Omar's Solar System</title>
         <meta name="description" content="A 3D simulation of the solar system" />
       </Head>
-      <div ref={canvasRef} className="w-full h-screen" />
+      <div className="relative w-full h-screen">
+        {/* Dropdown container */}
+        <div className="planet-dropdown-container">
+          <button
+            className="planet-dropdown-button"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {followedPlanet ? planetNames[followedPlanet] : planetNames["Sun"]}
+          </button>
+          {isOpen && (
+            <ul className="planet-dropdown-list">
+              <li onClick={() => { setFollowedPlanet("Sun"); setIsOpen(false); }}>
+                {planetNames["Sun"]}
+              </li>
+              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"].map((planet) => (
+                <li
+                  key={planet}
+                  onClick={() => {
+                    setFollowedPlanet(planet);
+                    setIsOpen(false);
+                  }}
+                >
+                  {planetNames[planet]}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {/* Canvas */}
+        <div ref={canvasRef} className="w-full h-full" />
+      </div>
     </>
   );
 }
