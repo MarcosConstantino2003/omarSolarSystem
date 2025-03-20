@@ -28,9 +28,6 @@ export default function Home() {
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   let rotationX = 0, rotationY = 0;
   const INITIAL_ZOOM = 1700;
-  const PLANET_ZOOM = 100;
-
-
 
 
   useEffect(() => {
@@ -185,10 +182,35 @@ export default function Home() {
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("click", onClick);
 
-    // Zoom
-    const MIN_ZOOM = 10, MAX_ZOOM = 10000;
+    // Zoom dinámico
+    const MAX_ZOOM = 10000;
+    const getMinZoom = (planetName: string | null) => {
+      switch (planetName) {
+        case "Mercury":
+          return 10;
+        case "Venus":
+        case "Earth":
+          return 60;
+        case "Mars":
+          return 30;
+        case "Uranus":
+        case "Neptune":
+          return 300;
+        case "Jupiter":
+        case "Saturn":
+          return 450;
+        default:
+          return 10; // Valor por defecto si no hay planeta seleccionado
+      }
+    };
+
     const onScroll = (event: WheelEvent) => {
-      zoomDistance += event.deltaY * 0.3;
+      // Incremento proporcional a zoomDistance
+      const zoomSpeed = zoomDistance * 0.001; // Ajusta 0.01 para más/menos sensibilidad
+      zoomDistance += event.deltaY * zoomSpeed;
+
+      // Limitar según el planeta seleccionado
+      const MIN_ZOOM = getMinZoom(followedPlanet);
       zoomDistance = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomDistance));
     };
     window.addEventListener("wheel", onScroll);
