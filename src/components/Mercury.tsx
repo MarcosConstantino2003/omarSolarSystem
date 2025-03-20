@@ -1,17 +1,20 @@
 import * as THREE from "three";
 
 export const Mercury = () => {
-  // Load the texture for Mercury (you can replace it with your own texture if available)
   const textureLoader = new THREE.TextureLoader();
-  const mercuryTexture = textureLoader.load("/textures/mercury.jpg");  // Asegúrate de tener la textura de Mercurio en public/textures
+  const mercuryTexture = textureLoader.load("/textures/mercury.jpg");
 
-  // Create the Mercury sphere with texture
-  const mercuryGeometry = new THREE.SphereGeometry(3.5, 32, 32); // Radio de 3.5
-  const mercuryMaterial = new THREE.MeshBasicMaterial({
+  const mercuryGeometry = new THREE.SphereGeometry(14, 32, 32);
+  const mercuryMaterial = new THREE.MeshPhongMaterial({
     map: mercuryTexture,
+    shininess: 5, // Reducir brillo para menos contraste duro
+    specular: new THREE.Color(0x222222), // Reflejos más suaves y oscuros
+    color: new THREE.Color(0xaaaaaa),
   });
-  const mercuryMesh = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
 
-  // Return Mercury as a mesh to be added to the scene
+  const mercuryMesh = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
+  mercuryMesh.castShadow = true; // Allow Mercury to cast shadows
+  mercuryMesh.receiveShadow = true; // Allow Mercury to receive shadows
+
   return mercuryMesh;
 };

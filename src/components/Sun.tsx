@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 export const Sun = () => {
-  // Create a group to hold both the sun and its glow
+  // Create a group to hold the sun mesh and light
   const sunGroup = new THREE.Group();
 
   // Load the texture
@@ -16,14 +16,18 @@ export const Sun = () => {
   const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
   sunGroup.add(sunMesh);
 
+  // Add a PointLight to make the Sun emit light
+  const sunLight = new THREE.PointLight(0xffffff, 50000000, 10000); // Color, intensity, distance
+  sunLight.position.set(0, 0, 0); // Light originates from the Sun's center
+  sunLight.castShadow = true; // Enable shadow casting
+  sunGroup.add(sunLight);
+
   // Animation function
   const animate = () => {
-    // Rotate the sun on its Y axis
-    sunMesh.rotation.y += 0.001; // Adjust speed as needed
-    
+    sunMesh.rotation.y += 0.001; // Rotate the sun
     requestAnimationFrame(animate);
   };
   animate();
-
+  console.log("Sun group children:", sunGroup.children);
   return sunGroup;
 };

@@ -8,6 +8,7 @@ import { Stars } from "../components/Stars";
 import { Mercury } from "../components/Mercury";
 import { Venus } from "../components/Venus";
 import { Earth } from "../components/Earth";
+import { Mars } from "../components/Mars";
 import { Jupiter } from "../components/Jupiter";
 import { Saturn } from "../components/Saturn";
 import { Uranus } from "../components/Uranus";
@@ -46,10 +47,22 @@ export default function Home() {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvasRef.current.appendChild(renderer.domElement);
+    renderer.shadowMap.enabled = true; // Habilitar sombras
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Sombras suaves
+
 
     // Sol
     const sun = Sun();
     scene.add(sun);
+
+    const ambientLight = new THREE.AmbientLight(0x404040, 1); // Gris oscuro, intensidad baja
+    scene.add(ambientLight);
+
+    const testCubeGeometry = new THREE.BoxGeometry(100, 100, 100);
+    const testCubeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterial);
+    testCube.position.set(500, 0, 0); // Near the Sun
+    scene.add(testCube);
 
     // Estrellas
     const stars = Stars();
@@ -61,49 +74,56 @@ export default function Home() {
         name: "Mercury",
         radius: 1800,
         angle: 0,
-        speed: 0.0001,
+        speed: 0.004,
         mesh: Mercury(),
       },
       {
         name: "Venus",
         radius: 2300,
         angle: 0,
-        speed: 0.0003,
+        speed: 0.0035,
         mesh: Venus(),
       },
       {
         name: "Earth",
         radius: 2700,
         angle: 0,
-        speed: 0.0005,
+        speed: 0.003,
         mesh: Earth(),
       },
       {
-        name: "Jupiter",
+        name: "Mars",
         radius: 3100,
         angle: 0,
-        speed: 0.001,
+        speed: 0.0025,
+        mesh: Mars(),
+      },
+      {
+        name: "Jupiter",
+        radius: 4200,
+        angle: 0,
+        speed: 0.0015,
         mesh: Jupiter(),
       },
       {
         name: "Saturn",
-        radius: 3500,
+        radius: 5700,
         angle: 0,
-        speed: 0.0015,
+        speed: 0.001,
         mesh: Saturn(),
       },
       {
         name: "Uranus",
-        radius: 4000,
+        radius: 7000,
         angle: 0,
-        speed: 0.002,
+        speed: 0.0006,
         mesh: Uranus(),
       },
       {
         name: "Neptune",
-        radius: 4500,
+        radius: 7600,
         angle: 0,
-        speed: 0.0022,
+        speed: 0.0004,
         mesh: Neptune(),
       }
     ];
