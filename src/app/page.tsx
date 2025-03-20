@@ -31,8 +31,8 @@ export default function Home() {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planetsRef = useRef<Planet[]>([]);
   const sunRef = useRef<THREE.Object3D | null>(null);
-  const rotationRef = useRef({ x: 0, y: 0 });
-  const zoomDistanceRef = useRef(1700); // INITIAL_ZOOM
+  const rotationRef = useRef({ x: Math.PI / 2, y: Math.PI / 4 }); // Ángulos iniciales aproximados
+  const zoomDistanceRef = useRef(Math.sqrt(6000 * 1000 + 6000 * 1000 + 6000 * 1000)); // Distancia inicial ≈ 1732
 
   // Primer useEffect: Configuración inicial (solo se ejecuta una vez)
   useEffect(() => {
@@ -42,6 +42,7 @@ export default function Home() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
+
 
     // Cámara
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
@@ -86,7 +87,7 @@ export default function Home() {
     const textTexture = createTextTexture("easter egg decirle a omar");
     const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
     const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
-    testCube.position.set(500, 0, 0);
+    testCube.position.set(0, 0, 0);
     scene.add(testCube);
 
     // Estrellas
@@ -233,6 +234,28 @@ export default function Home() {
     const planets = planetsRef.current;
     if (!camera || !sun) return;
 
+    // Definir zoom mínimo según el planeta
+    const getMinZoom = (planetName: string | null) => {
+      switch (planetName) {
+        case "Mercury": return 10;
+        case "Venus":
+        case "Earth": return 60;
+        case "Mars": return 30;
+        case "Uranus":
+        case "Neptune": return 300;
+        case "Jupiter":
+        case "Saturn": return 450;
+        default: return 10; // Valor por defecto para el Sol o sin planeta
+      }
+    };
+
+    if (followedPlanet) {
+      const minZoom = getMinZoom(followedPlanet);
+      zoomDistanceRef.current = minZoom * 3;
+    } else {
+      zoomDistanceRef.current = 1600;
+    }
+
     const updateCamera = () => {
       const targetPlanet = planets.find(p => p.name === followedPlanet);
       const { x: rotationX, y: rotationY } = rotationRef.current;
@@ -275,6 +298,26 @@ export default function Home() {
     Sun: "Sol",
   };
 
+  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const MAX_ZOOM = 10000;
+    const getMinZoom = (planetName: string | null) => {
+      switch (planetName) {
+        case "Mercury": return 10;
+        case "Venus":
+        case "Earth": return 60;
+        case "Mars": return 30;
+        case "Uranus":
+        case "Neptune": return 300;
+        case "Jupiter":
+        case "Saturn": return 450;
+        default: return 10;
+      }
+    };
+    const minZoom = getMinZoom(followedPlanet);
+    const sliderValue = Number(event.target.value); // 0 a 100
+    // Invertimos el valor: slider alto = zoom bajo (minZoom), slider bajo = zoom alto (MAX_ZOOM)
+    zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
+  };
   return (
     <>
       <Head>
@@ -305,6 +348,16 @@ export default function Home() {
             </ul>
           )}
         </div>
+        {/* Slider vertical para el zoom */}
+        <input
+          type="range"
+          min="0"
+          max="100"
+          defaultValue="50" // Valor inicial intermedio
+          onChange={handleZoomChange}
+          className="absolute bottom-4 left-4 h-48 w-6 bg-gray-800 text-white transform -rotate-180"
+          style={{ writingMode: 'vertical-rl' }}
+        />
         <div ref={canvasRef} className="w-full h-full" />
       </div>
     </>
