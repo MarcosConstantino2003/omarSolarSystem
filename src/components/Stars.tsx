@@ -5,11 +5,11 @@ export const Stars = () => {
   const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 }); // Increased size slightly for visibility
 
   const starVertices = [];
-  const starCount = 100000; // 1 million stars for a massive field
+  const starCount = 10000; 
   for (let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 50000; // Spread over 50,000 units wide
-    const y = (Math.random() - 0.5) * 100000; // Spread over 100,000 units tall
-    const z = (Math.random() - 0.5) * 50000; // Spread over 50,000 units deep
+    const x = (Math.random() - 0.5) * 100000;
+    const y = (Math.random() - 0.5) * 100000; 
+    const z = (Math.random() - 0.5) * 100000; 
     starVertices.push(x, y, z);
   }
 

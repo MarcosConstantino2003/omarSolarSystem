@@ -28,6 +28,5 @@ export const Sun = () => {
     requestAnimationFrame(animate);
   };
   animate();
-  console.log("Sun group children:", sunGroup.children);
   return sunGroup;
 };
