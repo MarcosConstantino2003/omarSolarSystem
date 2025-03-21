@@ -29,6 +29,7 @@ const getMinZoom = (planetName: string | null) => {
 };
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true); 
   const canvasRef = useRef<HTMLDivElement>(null!);;
   const sliderRef = useRef<HTMLInputElement>(null!);;
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
@@ -67,6 +68,14 @@ export default function Home() {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
       </Head>
       <div className="relative w-full h-screen">
+        {/* Pantalla de carga */}
+        {isLoading && (
+          <div className="loading-screen">
+            <div className="spinner"></div>
+            <p className="main-text">Cargando...</p>
+            <p className="footer-text">by Marcos Constantino</p>
+          </div>
+        )}
         <SolarSystemScene
           canvasRef={canvasRef}
           sceneRef={sceneRef}
@@ -78,6 +87,7 @@ export default function Home() {
           setFollowedPlanet={setFollowedPlanet}
           showDwarfOrbits={showDwarfOrbits}
           antialias={antialias}
+          setIsLoading={setIsLoading}
         />
         <CameraControls
           cameraRef={cameraRef}

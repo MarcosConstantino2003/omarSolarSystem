@@ -100,7 +100,7 @@ export function PlanetLabels({
           sprite.position.y += offsetY;
     
           const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = Math.max(5, distance * 0.006); // Evita escalas muy pequeñas
+          const scaleFactor = Math.max(1, distance * 0.006); // Evita escalas muy pequeñas
           sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5); 
         }
       });

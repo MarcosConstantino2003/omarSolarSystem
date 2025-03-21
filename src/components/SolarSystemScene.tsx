@@ -56,6 +56,7 @@ export function SolarSystemScene({
   setFollowedPlanet,
   showDwarfOrbits,
   antialias,
+  setIsLoading,
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.MutableRefObject<THREE.Scene | null>;
@@ -67,6 +68,7 @@ export function SolarSystemScene({
   setFollowedPlanet: (planet: string | null) => void;
   showDwarfOrbits: boolean;
   antialias: boolean;
+  setIsLoading: (loading: boolean) => void;
 }) {
   const createTextTexture = (text: string) => {
     const canvas = document.createElement("canvas");
@@ -173,7 +175,6 @@ export function SolarSystemScene({
       scene.add(orbit);
     });
     planetsRef.current = planets;
-    planetsRef.current = planets;
 
     //Eventos mouse
     let isDragging = false;
@@ -230,6 +231,8 @@ export function SolarSystemScene({
     };
     window.addEventListener("resize", handleResize);
 
+      let hasRenderedFirstFrame = false; // Bandera para el primer frame
+
     //Animacion planetas
     const animate = () => {
       requestAnimationFrame(animate);
@@ -259,9 +262,14 @@ export function SolarSystemScene({
       });
 
       renderer.render(scene, camera);
+
+      if (!hasRenderedFirstFrame) {
+        hasRenderedFirstFrame = true;
+        setTimeout(() => setIsLoading(false), 500); // Retraso adicional de 500ms
+      }
     };
     animate();
-
+    
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousedown", onMouseDown);
