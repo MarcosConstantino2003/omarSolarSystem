@@ -77,7 +77,7 @@ export default function Home() {
     sunRef.current = sun;
 
     //Luz global
-    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    const ambientLight = new THREE.AmbientLight(0x404040, 1.3);
     scene.add(ambientLight);
 
     //Cubo 
