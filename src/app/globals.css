@@ -223,60 +223,73 @@ body {
                0 0 30px rgba(0, 0, 0, 0.6); /* Glow effect */
 }
 
-/* Contenedor de la checkbox en la esquina superior derecha */
+/* Contenedor del menucito */
 .dwarf-orbits-checkbox-container {
   position: absolute;
-  top: 10px; 
-  right: 10px; 
+  top: 10px;
+  right: 10px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espacio entre las opciones */
 }
 
-/* Estilo de la etiqueta */
-.dwarf-orbits-label {
+/* Estilo común para las etiquetas */
+.dwarf-orbits-label,
+.planet-names-label {
   display: flex;
   align-items: center;
-  gap: 8px; /* Espacio entre checkbox y texto */
-  color: #ffffff; /* Texto blanco */
-  font-size: 14px;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Brillo sutil */
-  background: rgba(30, 58, 138, 0.3); /* Fondo azul oscuro semitransparente */
+  gap: 8px;
+  color: #ffffff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Efecto glow */
+  background: rgba(30, 58, 138, 0.3);
   padding: 5px 10px;
   border-radius: 5px;
-  border: 1px solid #00479e; /* Borde azul claro */
+  border: 1px solid #60a5fa;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 
-/* Hover en la etiqueta */
-.dwarf-orbits-label:hover {
-  background: rgba(30, 58, 138, 0.6); /* Más opacidad al pasar el mouse */
+.dwarf-orbits-label:hover,
+.planet-names-label:hover {
+  background: rgba(30, 58, 138, 0.6);
 }
 
-/* Estilo de la checkbox */
-.dwarf-orbits-label input[type="checkbox"] {
-  appearance: none; /* Eliminar estilo por defecto */
+/* Estilo común para las checkboxes */
+.dwarf-orbits-label input[type="checkbox"],
+.planet-names-label input[type="checkbox"] {
+  appearance: none;
   width: 16px;
   height: 16px;
-  background: #0a1a3d; /* Fondo azul oscuro */
-  border: 2px solid #60a5fa; /* Borde azul claro */
+  background: #0a1a3d;
+  border: 2px solid #60a5fa;
   border-radius: 3px;
   cursor: pointer;
   position: relative;
 }
 
-/* Estilo cuando está marcada */
-.dwarf-orbits-label input[type="checkbox"]:checked {
-  background: #60a5fa; /* Azul claro cuando está marcada */
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); 
-
+.dwarf-orbits-label input[type="checkbox"]:checked,
+.planet-names-label input[type="checkbox"]:checked {
+  background: #60a5fa;
 }
 
-/* Checkmark personalizado */
-.dwarf-orbits-label input[type="checkbox"]:checked::after {
-  content: "✔"; /* Símbolo de check */
+.dwarf-orbits-label input[type="checkbox"]:checked::after,
+.planet-names-label input[type="checkbox"]:checked::after {
+  content: "✔";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #ffffff;
   font-size: 12px;
+}
+
+/* Estilo para los nombres de los planetas */
+.planet-name {
+  position: absolute;
+  color: #ffffff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6); /* Efecto glow */
+  transform: translate(-50%, -50%); /* Centrar el texto sobre el planeta */
+  pointer-events: none; /* Evitar que interfiera con clics */
+  z-index: 50;
 }

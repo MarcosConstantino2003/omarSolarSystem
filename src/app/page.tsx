@@ -20,6 +20,7 @@ import { Haumea } from "../components/Haumea";
 import { Makemake } from "../components/Makemake";
 import './globals.css';
 
+
 // Definición de tipos y constantes globales
 interface Planet {
   name: string;
@@ -32,7 +33,7 @@ interface Planet {
 const MAX_ZOOM = 20000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake":return 20;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
     case "Venus":
     case "Earth": return 70;
     case "Mars": return 40;
@@ -54,7 +55,7 @@ const planetInclinaciones: { [key: string]: number } = {
   "Uranus": 0.77,
   "Neptune": 1.77,
   "Pluto": 17.14,
-  "Eris":44,
+  "Eris": 44,
   "Ceres": 10.7,
   "Haumea": 28.2,
   "Makemake": 29,
@@ -88,8 +89,10 @@ export default function Home() {
   const sunRef = useRef<THREE.Object3D | null>(null);
   const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z: Math.PI / 4 });
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
-  const [showDwarfOrbits, setShowDwarfOrbits] = useState(true); 
-  const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"]; 
+  const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
+  const [showPlanetNames, setShowPlanetNames] = useState(true);
+  const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
+  const nameElementsRef = useRef<{ planet: Planet; element: HTMLDivElement }[]>([]);
 
 
   // Configuración inicial de la escena (se ejecuta una vez)
@@ -147,41 +150,41 @@ export default function Home() {
       { name: "Pluto", radius: 9000, angle: 0, speed: 0.0002, mesh: Pluto() },
       { name: "Eris", radius: 10000, angle: 0, speed: 0.0002, mesh: Eris() },
       { name: "Ceres", radius: 7500, angle: 0, speed: 0.0002, mesh: Ceres() },
-      { name: "Haumea", radius: 12000, angle: 0, speed: 0.0002, mesh: Haumea() },
-      { name: "Makemake", radius: 12300, angle: 0, speed: 0.0002, mesh: Makemake() },
+      { name: "Haumea", radius: 12000, angle: 2, speed: 0.0002, mesh: Haumea() },
+      { name: "Makemake", radius: 12300, angle: 16, speed: 0.0002, mesh: Makemake() },
     ];
 
     // Orbitas
-  planets.forEach(({ mesh, name }) => {
-    scene.add(mesh);
+    planets.forEach(({ mesh, name }) => {
+      scene.add(mesh);
 
-    // Parámetros de la elipse
-    const { a, e } = planetEllipses[name];
-    const b = a * Math.sqrt(1 - e * e); // Semieje menor
-    const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[name]);
+      // Parámetros de la elipse
+      const { a, e } = planetEllipses[name];
+      const b = a * Math.sqrt(1 - e * e); // Semieje menor
+      const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[name]);
 
-    // Generar puntos de la elipse en el plano XZ
-    const points = [];
-    for (let i = 0; i <= 100; i++) {
-      const theta = (i / 100) * 2 * Math.PI;
-      const x = a * Math.cos(theta); // Coordenada X
-      const zBase = b * Math.sin(theta); // Coordenada Z antes de inclinación
-      const y = zBase * Math.sin(inclinacion); // Coordenada Y ajustada por inclinación
-      const z = zBase * Math.cos(inclinacion); // Coordenada Z ajustada por inclinación
-      points.push(new THREE.Vector3(x, y, z));
-    }
+      // Generar puntos de la elipse en el plano XZ
+      const points = [];
+      for (let i = 0; i <= 100; i++) {
+        const theta = (i / 100) * 2 * Math.PI;
+        const x = a * Math.cos(theta); // Coordenada X
+        const zBase = b * Math.sin(theta); // Coordenada Z antes de inclinación
+        const y = zBase * Math.sin(inclinacion); // Coordenada Y ajustada por inclinación
+        const z = zBase * Math.cos(inclinacion); // Coordenada Z ajustada por inclinación
+        points.push(new THREE.Vector3(x, y, z));
+      }
 
-    // Crear geometría y línea para la órbita
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color: 0xffffff });
-    const orbit = new THREE.Line(geometry, material);
+      // Crear geometría y línea para la órbita
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+      const orbit = new THREE.Line(geometry, material);
 
-     // Mostrar u ocultar órbitas de planetas enanos según el estado
-     orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
-     orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) }; 
-     scene.add(orbit);
-  });
-  planetsRef.current = planets;
+      // Mostrar u ocultar órbitas de planetas enanos según el estado
+      orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
+      orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) };
+      scene.add(orbit);
+    });
+    planetsRef.current = planets;
     planetsRef.current = planets;
 
     //Eventos mouse
@@ -246,23 +249,23 @@ export default function Home() {
         // Incrementar el ángulo (anomalía media aproximada)
         planet.angle += planet.speed;
         if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
-    
+
         // Parámetros de la elipse
         const { a, e } = planetEllipses[planet.name];
         const b = a * Math.sqrt(1 - e * e); // Semieje menor
-    
+
         // Posición en la elipse (plano base XZ)
         const x = a * Math.cos(planet.angle);
         const z = b * Math.sin(planet.angle);
-    
+
         // Aplicar inclinación
         const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[planet.name]);
         const y = z * Math.sin(inclinacion); // Ajustar Y según la inclinación
         const zInclinado = z * Math.cos(inclinacion); // Ajustar Z según la inclinación
-    
+
         // Actualizar la posición del planeta
         planet.mesh.position.set(x, y, zInclinado);
-    
+
         // Rotación del planeta sobre su propio eje
         planet.mesh.rotation.y += 0.002;
       });
@@ -281,7 +284,6 @@ export default function Home() {
     };
   }, []);
 
-  // Actualización dinámica de la cámara y zoom
   useEffect(() => {
     const camera = cameraRef.current;
     const sun = sunRef.current;
@@ -291,9 +293,9 @@ export default function Home() {
 
     if (followedPlanet) {
       const minZoom = getMinZoom(followedPlanet);
-      zoomDistanceRef.current = minZoom * 3;
+      zoomDistanceRef.current = minZoom * 3; // Restaurar el valor inicial al seguir un planeta
     } else {
-      zoomDistanceRef.current = 1600;
+      zoomDistanceRef.current = Math.max(1600, Math.min(MAX_ZOOM, zoomDistanceRef.current));
     }
 
     const updateCamera = () => {
@@ -304,24 +306,13 @@ export default function Home() {
 
       if (targetPlanet) {
         const { mesh } = targetPlanet;
-        // Obtener la inclinación de la órbita del planeta en radianes
         const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[targetPlanet.name]);
-
-        // Calcular la dirección base de la cámara en coordenadas esféricas
         const xBase = Math.cos(rotationY) * Math.sin(rotationX);
         const yBase = Math.sin(rotationY);
         const zBase = Math.cos(rotationY) * Math.cos(rotationX);
-
-        // Crear un vector de dirección desde las coordenadas esféricas
         const direction = new THREE.Vector3(xBase, yBase, zBase).normalize();
-
-        // Rotar el vector de dirección según la inclinación de la órbita (alrededor del eje X)
         direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), inclinacion);
-
-        // Escalar el vector por la distancia de zoom
         const offset = direction.multiplyScalar(zoomDistance);
-
-        // Posicionar la cámara relativa a la posición del planeta
         camera.position.copy(mesh.position).add(offset);
         camera.lookAt(mesh.position);
       } else {
@@ -354,6 +345,87 @@ export default function Home() {
     };
   }, [followedPlanet]);
 
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    const planets = planetsRef.current;
+    if (!scene || !camera || !planets) return;
+  
+    const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
+    const spriteElements: { planet: Planet; sprite: THREE.Sprite }[] = [];
+  
+    planets.forEach(planet => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+  
+      const fontSize = 12;
+      canvas.width = 512;
+      canvas.height = 128;
+      ctx.scale(2, 2);
+  
+      ctx.fillStyle = "rgba(0, 0, 0, 0)"; 
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `${fontSize}px 'VT323', monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+      ctx.shadowBlur = 5;
+      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
+      ctx.shadowBlur = 10;
+      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.shadowBlur = 0;
+      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+  
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+      const sprite = new THREE.Sprite(material);
+  
+      sprite.position.copy(planet.mesh.position);
+      sprite.userData = { planetName: planet.name };
+  
+      spriteElements.push({ planet, sprite });
+      scene.add(sprite);
+    });
+  
+    const updateSprites = () => {
+      spriteElements.forEach(({ planet, sprite }) => {
+        const isDwarf = dwarfPlanets.includes(planet.name);
+        const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
+  
+        sprite.visible = shouldShow;
+  
+        if (shouldShow) {
+          // Offset: minZoom del planeta seguido, o minZoom * 2 de cada planeta si no hay seguido
+          const offsetY = followedPlanet 
+            ? getMinZoom(followedPlanet) 
+            : getMinZoom(planet.name) * 1.5;
+          sprite.position.copy(planet.mesh.position);
+          sprite.position.y += offsetY;
+  
+          const distance = camera.position.distanceTo(sprite.position);
+          const scaleFactor = distance * 0.005;
+          sprite.scale.set(scaleFactor * 100, scaleFactor * 25, 1);
+        }
+      });
+    };
+  
+    const animateSprites = () => {
+      updateSprites();
+      requestAnimationFrame(animateSprites);
+    };
+    animateSprites();
+  
+    return () => {
+      spriteElements.forEach(({ sprite }) => scene.remove(sprite));
+      spriteElements.forEach(({ sprite }) => sprite.material.map?.dispose());
+      spriteElements.forEach(({ sprite }) => sprite.material.dispose());
+    };
+  }, [showPlanetNames, showDwarfOrbits, followedPlanet]);
+
   // Funciones de utilidad
   const createTextTexture = (text: string) => {
     const canvas = document.createElement("canvas");
@@ -364,7 +436,6 @@ export default function Home() {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
-      ctx.font = "24px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -397,13 +468,14 @@ export default function Home() {
   };
 
   const [isOpen, setIsOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false); // State for contact info panel
+  const [contactOpen, setContactOpen] = useState(false);
 
   return (
     <>
       <Head>
         <title>Omar's Solar System</title>
         <meta name="description" content="A 3D simulation of the solar system" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
       </Head>
       <div className="relative w-full h-screen">
         <div className="planet-dropdown-container">
@@ -415,7 +487,7 @@ export default function Home() {
               <li onClick={() => { setFollowedPlanet(null); setIsOpen(false); }}>
                 {planetNames["Sun"]}
               </li>
-              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"].map((planet) => (
+              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Eris", "Ceres", "Haumea", "Makemake"].map((planet) => (
                 <li
                   key={planet}
                   onClick={() => {
@@ -471,8 +543,16 @@ export default function Home() {
             />
             Órbitas de enanos
           </label>
+          <label className="planet-names-label">
+            <input
+              type="checkbox"
+              checked={showPlanetNames}
+              onChange={(e) => setShowPlanetNames(e.target.checked)}
+            />
+            Nombres de planetas
+          </label>
         </div>
       </div>
     </>
   );
-}
+} 
