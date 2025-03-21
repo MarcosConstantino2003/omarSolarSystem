@@ -1,27 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import * as THREE from "three";
 import Head from "next/head";
-import { Sun } from "../components/Sun";
-import { Stars } from "../components/Stars";
-import { Mercury } from "../components/Mercury";
-import { Venus } from "../components/Venus";
-import { Earth } from "../components/Earth";
-import { Mars } from "../components/Mars";
-import { Jupiter } from "../components/Jupiter";
-import { Saturn } from "../components/Saturn";
-import { Uranus } from "../components/Uranus";
-import { Neptune } from "../components/Neptune";
-import { Pluto } from "../components/Pluto";
-import { Eris } from "../components/Eris";
-import { Ceres } from "../components/Ceres";
-import { Haumea } from "../components/Haumea";
-import { Makemake } from "../components/Makemake";
-import './globals.css';
+import { SolarSystemScene } from "../components/SolarSystemScene";
+import { CameraControls } from "../components/CameraControls";
+import { PlanetLabels } from "../components/PlanetLabels";
+import "../app/globals.css";
 
-
-// Definición de tipos y constantes globales
 interface Planet {
   name: string;
   radius: number;
@@ -34,53 +20,17 @@ const MAX_ZOOM = 20000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
     case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
-    case "Venus":
-    case "Earth": return 70;
+    case "Venus": case "Earth": return 70;
     case "Mars": return 40;
-    case "Uranus":
-    case "Neptune": return 320;
-    case "Jupiter":
-    case "Saturn": return 470;
+    case "Uranus": case "Neptune": return 320;
+    case "Jupiter": case "Saturn": return 470;
     default: return 1700;
   }
 };
 
-const planetInclinaciones: { [key: string]: number } = {
-  "Mercury": 7.00,
-  "Venus": 3.39,
-  "Earth": 0.00,
-  "Mars": 1.85,
-  "Jupiter": 1.31,
-  "Saturn": 2.49,
-  "Uranus": 0.77,
-  "Neptune": 1.77,
-  "Pluto": 17.14,
-  "Eris": 44,
-  "Ceres": 10.7,
-  "Haumea": 28.2,
-  "Makemake": 29,
-};
-
-const planetEllipses: { [key: string]: { a: number; e: number } } = {
-  Mercury: { a: 1800, e: 0.2056 },
-  Venus: { a: 2300, e: 0.0068 },
-  Earth: { a: 2700, e: 0.0167 },
-  Mars: { a: 3100, e: 0.0934 },
-  Jupiter: { a: 4200, e: 0.0484 },
-  Saturn: { a: 5700, e: 0.0556 },
-  Uranus: { a: 7000, e: 0.0472 },
-  Neptune: { a: 7600, e: 0.0086 },
-  Pluto: { a: 9000, e: 0.2488 },
-  Eris: { a: 10200, e: 0.436 },
-  Ceres: { a: 3800, e: 0.075 },
-  Haumea: { a: 11610, e: 0.195 },
-  Makemake: { a: 12258, e: 0.159 },
-};
-
-// Componente principal
 export default function Home() {
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const sliderRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null!);;
+  const sliderRef = useRef<HTMLInputElement>(null!);;
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -91,380 +41,18 @@ export default function Home() {
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
   const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
-  const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
-  const nameElementsRef = useRef<{ planet: Planet; element: HTMLDivElement }[]>([]);
 
-
-  // Configuración inicial de la escena (se ejecuta una vez)
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-    sceneRef.current = scene;
-
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
-    camera.lookAt(0, 0, 0);
-    cameraRef.current = camera;
-
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    canvasRef.current.appendChild(renderer.domElement);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    rendererRef.current = renderer;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
-    canvasRef.current.appendChild(renderer.domElement);
-
-    //Sol 
-    const sun = Sun();
-    scene.add(sun);
-    sunRef.current = sun;
-
-    //Luz global
-    const ambientLight = new THREE.AmbientLight(0x404040, 1.7);
-    scene.add(ambientLight);
-
-    //Cubo 
-    const textTexture = createTextTexture("easter egg decirle a omar");
-    const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
-    const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
-    testCube.position.set(0, 0, 0);
-    scene.add(testCube);
-
-    //Estrellas
-    const stars = Stars();
-    scene.add(stars);
-
-    //Planetas
-    const planets: Planet[] = [
-      { name: "Mercury", radius: 1800, angle: 19, speed: 0.004, mesh: Mercury() },
-      { name: "Venus", radius: 2300, angle: 16, speed: 0.0035, mesh: Venus() },
-      { name: "Earth", radius: 2700, angle: 13, speed: 0.003, mesh: Earth() },
-      { name: "Mars", radius: 3100, angle: 11, speed: 0.0025, mesh: Mars() },
-      { name: "Jupiter", radius: 4200, angle: 7, speed: 0.0015, mesh: Jupiter() },
-      { name: "Saturn", radius: 5700, angle: 4, speed: 0.001, mesh: Saturn() },
-      { name: "Uranus", radius: 7000, angle: 2, speed: 0.0006, mesh: Uranus() },
-      { name: "Neptune", radius: 7600, angle: 1, speed: 0.0004, mesh: Neptune() },
-      { name: "Pluto", radius: 9000, angle: 0, speed: 0.0002, mesh: Pluto() },
-      { name: "Eris", radius: 10000, angle: 0, speed: 0.0002, mesh: Eris() },
-      { name: "Ceres", radius: 7500, angle: 0, speed: 0.0002, mesh: Ceres() },
-      { name: "Haumea", radius: 12000, angle: 2, speed: 0.0002, mesh: Haumea() },
-      { name: "Makemake", radius: 12300, angle: 16, speed: 0.0002, mesh: Makemake() },
-    ];
-
-    // Orbitas
-    planets.forEach(({ mesh, name }) => {
-      scene.add(mesh);
-
-      // Parámetros de la elipse
-      const { a, e } = planetEllipses[name];
-      const b = a * Math.sqrt(1 - e * e); // Semieje menor
-      const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[name]);
-
-      // Generar puntos de la elipse en el plano XZ
-      const points = [];
-      for (let i = 0; i <= 100; i++) {
-        const theta = (i / 100) * 2 * Math.PI;
-        const x = a * Math.cos(theta); // Coordenada X
-        const zBase = b * Math.sin(theta); // Coordenada Z antes de inclinación
-        const y = zBase * Math.sin(inclinacion); // Coordenada Y ajustada por inclinación
-        const z = zBase * Math.cos(inclinacion); // Coordenada Z ajustada por inclinación
-        points.push(new THREE.Vector3(x, y, z));
-      }
-
-      // Crear geometría y línea para la órbita
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color: 0xffffff });
-      const orbit = new THREE.Line(geometry, material);
-
-      // Mostrar u ocultar órbitas de planetas enanos según el estado
-      orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
-      orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) };
-      scene.add(orbit);
-    });
-    planetsRef.current = planets;
-    planetsRef.current = planets;
-
-    //Eventos mouse
-    let isDragging = false;
-    let previousMouseX = 0, previousMouseY = 0;
-
-    const onMouseDown = (event: MouseEvent) => {
-      isDragging = true;
-      previousMouseX = event.clientX;
-      previousMouseY = event.clientY;
-    };
-
-    const onMouseMove = (event: MouseEvent) => {
-      if (!isDragging) return;
-      const deltaX = event.clientX - previousMouseX;
-      const deltaY = event.clientY - previousMouseY;
-      rotationRef.current.x -= deltaX * 0.002;
-      rotationRef.current.y += deltaY * 0.002;
-      rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
-      previousMouseX = event.clientX;
-      previousMouseY = event.clientY;
-    };
-
-    const onMouseUp = () => {
-      isDragging = false;
-    };
-
-    const onClick = (event: MouseEvent) => {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      for (const planet of planets) {
-        const intersects = raycaster.intersectObject(planet.mesh);
-        if (intersects.length > 0) {
-          setFollowedPlanet(planet.name);
-          return;
-        }
-      }
-      const intersectsSun = raycaster.intersectObject(sun);
-      if (intersectsSun.length > 0) setFollowedPlanet(null);
-    };
-
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    window.addEventListener("click", onClick);
-
-    const handleResize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    };
-    window.addEventListener("resize", handleResize);
-
-    //Animacion planetas
-    const animate = () => {
-      requestAnimationFrame(animate);
-      planets.forEach((planet) => {
-        // Incrementar el ángulo (anomalía media aproximada)
-        planet.angle += planet.speed;
-        if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
-
-        // Parámetros de la elipse
-        const { a, e } = planetEllipses[planet.name];
-        const b = a * Math.sqrt(1 - e * e); // Semieje menor
-
-        // Posición en la elipse (plano base XZ)
-        const x = a * Math.cos(planet.angle);
-        const z = b * Math.sin(planet.angle);
-
-        // Aplicar inclinación
-        const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[planet.name]);
-        const y = z * Math.sin(inclinacion); // Ajustar Y según la inclinación
-        const zInclinado = z * Math.cos(inclinacion); // Ajustar Z según la inclinación
-
-        // Actualizar la posición del planeta
-        planet.mesh.position.set(x, y, zInclinado);
-
-        // Rotación del planeta sobre su propio eje
-        planet.mesh.rotation.y += 0.002;
-      });
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("click", onClick);
-      canvasRef.current?.removeChild(renderer.domElement);
-    };
-  }, []);
-
-  useEffect(() => {
-    const camera = cameraRef.current;
-    const sun = sunRef.current;
-    const planets = planetsRef.current;
-    const slider = sliderRef.current;
-    if (!camera || !sun) return;
-
-    if (followedPlanet) {
-      const minZoom = getMinZoom(followedPlanet);
-      zoomDistanceRef.current = minZoom * 3; // Restaurar el valor inicial al seguir un planeta
-    } else {
-      zoomDistanceRef.current = Math.max(1600, Math.min(MAX_ZOOM, zoomDistanceRef.current));
-    }
-
-    const updateCamera = () => {
-      const targetPlanet = planets.find(p => p.name === followedPlanet);
-      const { x: rotationX, y: rotationY } = rotationRef.current;
-      const zoomDistance = zoomDistanceRef.current;
-      const minZoom = getMinZoom(followedPlanet);
-
-      if (targetPlanet) {
-        const { mesh } = targetPlanet;
-        const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[targetPlanet.name]);
-        const xBase = Math.cos(rotationY) * Math.sin(rotationX);
-        const yBase = Math.sin(rotationY);
-        const zBase = Math.cos(rotationY) * Math.cos(rotationX);
-        const direction = new THREE.Vector3(xBase, yBase, zBase).normalize();
-        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), inclinacion);
-        const offset = direction.multiplyScalar(zoomDistance);
-        camera.position.copy(mesh.position).add(offset);
-        camera.lookAt(mesh.position);
-      } else {
-        const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
-        const y = zoomDistance * Math.sin(rotationY);
-        const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
-        camera.position.set(x, y, z);
-        camera.lookAt(sun.position);
-      }
-
-      if (slider) slider.value = String(100 * (1 - (zoomDistance - minZoom) / (MAX_ZOOM - minZoom)));
-    };
-
-    const onScroll = (event: WheelEvent) => {
-      const minZoom = getMinZoom(followedPlanet);
-      const zoomSpeed = zoomDistanceRef.current * 0.001;
-      zoomDistanceRef.current += event.deltaY * zoomSpeed;
-      zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
-    };
-    window.addEventListener("wheel", onScroll);
-
-    const animateCamera = () => {
-      updateCamera();
-      requestAnimationFrame(animateCamera);
-    };
-    animateCamera();
-
-    return () => {
-      window.removeEventListener("wheel", onScroll);
-    };
-  }, [followedPlanet]);
-
-  useEffect(() => {
-    const scene = sceneRef.current;
-    const camera = cameraRef.current;
-    const planets = planetsRef.current;
-    if (!scene || !camera || !planets) return;
-  
-    const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
-    const spriteElements: { planet: Planet; sprite: THREE.Sprite }[] = [];
-  
-    planets.forEach(planet => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-  
-      const fontSize = 12;
-      canvas.width = 512;
-      canvas.height = 128;
-      ctx.scale(2, 2);
-  
-      ctx.fillStyle = "rgba(0, 0, 0, 0)"; 
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = `${fontSize}px 'VT323', monospace`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
-      ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
-      ctx.shadowBlur = 5;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
-      ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
-      ctx.shadowBlur = 10;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
-      ctx.shadowBlur = 0;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
-  
-      const texture = new THREE.CanvasTexture(canvas);
-      const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
-      const sprite = new THREE.Sprite(material);
-  
-      sprite.position.copy(planet.mesh.position);
-      sprite.userData = { planetName: planet.name };
-  
-      spriteElements.push({ planet, sprite });
-      scene.add(sprite);
-    });
-  
-    const updateSprites = () => {
-      spriteElements.forEach(({ planet, sprite }) => {
-        const isDwarf = dwarfPlanets.includes(planet.name);
-        const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
-  
-        sprite.visible = shouldShow;
-  
-        if (shouldShow) {
-          // Offset: minZoom del planeta seguido, o minZoom * 2 de cada planeta si no hay seguido
-          const offsetY = followedPlanet 
-            ? getMinZoom(followedPlanet) 
-            : getMinZoom(planet.name) * 1.5;
-          sprite.position.copy(planet.mesh.position);
-          sprite.position.y += offsetY;
-  
-          const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = distance * 0.005;
-          sprite.scale.set(scaleFactor * 100, scaleFactor * 25, 1);
-        }
-      });
-    };
-  
-    const animateSprites = () => {
-      updateSprites();
-      requestAnimationFrame(animateSprites);
-    };
-    animateSprites();
-  
-    return () => {
-      spriteElements.forEach(({ sprite }) => scene.remove(sprite));
-      spriteElements.forEach(({ sprite }) => sprite.material.map?.dispose());
-      spriteElements.forEach(({ sprite }) => sprite.material.dispose());
-    };
-  }, [showPlanetNames, showDwarfOrbits, followedPlanet]);
-
-  // Funciones de utilidad
-  const createTextTexture = (text: string) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = 256;
-    canvas.height = 256;
-    if (ctx) {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-    }
-    return new THREE.CanvasTexture(canvas);
+  const planetNames: { [key: string]: string } = {
+    Mercury: "Mercurio", Venus: "Venus", Earth: "Tierra", Mars: "Marte",
+    Jupiter: "Júpiter", Saturn: "Saturno", Uranus: "Urano", Neptune: "Neptuno",
+    Pluto: "Plutón", Eris: "Eris", Ceres: "Ceres", Haumea: "Haumea",
+    Makemake: "Makemake", Sun: "Sol",
   };
 
   const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const minZoom = getMinZoom(followedPlanet);
     const sliderValue = Number(event.target.value);
     zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
-  };
-
-  // Renderizado del componente
-  const planetNames: { [key: string]: string } = {
-    Mercury: "Mercurio",
-    Venus: "Venus",
-    Earth: "Tierra",
-    Mars: "Marte",
-    Jupiter: "Júpiter",
-    Saturn: "Saturno",
-    Uranus: "Urano",
-    Neptune: "Neptuno",
-    Pluto: "Plutón",
-    Eris: "Eris",
-    Ceres: "Ceres",
-    Haumea: "Haumea",
-    Makemake: "Makemake",
-    Sun: "Sol",
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -478,6 +66,35 @@ export default function Home() {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
       </Head>
       <div className="relative w-full h-screen">
+        <SolarSystemScene
+          canvasRef={canvasRef}
+          sceneRef={sceneRef}
+          cameraRef={cameraRef}
+          rendererRef={rendererRef}
+          planetsRef={planetsRef}
+          sunRef={sunRef}
+          rotationRef={rotationRef}
+          setFollowedPlanet={setFollowedPlanet}
+          showDwarfOrbits={showDwarfOrbits}
+        />
+        <CameraControls
+          cameraRef={cameraRef}
+          sunRef={sunRef}
+          planetsRef={planetsRef}
+          sliderRef={sliderRef}
+          followedPlanet={followedPlanet}
+          rotationRef={rotationRef}
+          zoomDistanceRef={zoomDistanceRef}
+        />
+        <PlanetLabels
+          sceneRef={sceneRef}
+          cameraRef={cameraRef}
+          planetsRef={planetsRef}
+          showPlanetNames={showPlanetNames}
+          showDwarfOrbits={showDwarfOrbits}
+          followedPlanet={followedPlanet}
+          planetNames={planetNames}
+        />
         <div className="planet-dropdown-container">
           <button className="planet-dropdown-button" onClick={() => setIsOpen(!isOpen)}>
             {followedPlanet ? planetNames[followedPlanet] : planetNames["Sun"]}
@@ -509,12 +126,12 @@ export default function Home() {
           ref={sliderRef}
           onChange={handleZoomChange}
           className="zoom-slider absolute bottom-4 left-4"
-          style={{ writingMode: 'vertical-rl' }}
+          style={{ writingMode: "vertical-rl" }}
         />
         <div ref={canvasRef} className="w-full h-full" />
         <div className="contact-container">
           <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
-            <span className={`triangle ${contactOpen ? 'active' : ''}`} />
+            <span className={`triangle ${contactOpen ? "active" : ""}`} />
           </button>
           {contactOpen && (
             <div className="contact-info open">
@@ -523,7 +140,6 @@ export default function Home() {
             </div>
           )}
         </div>
-        {/* Checkbox movida a la esquina superior derecha */}
         <div className="dwarf-orbits-checkbox-container">
           <label className="dwarf-orbits-label">
             <input
@@ -555,4 +171,4 @@ export default function Home() {
       </div>
     </>
   );
-} 
+}
