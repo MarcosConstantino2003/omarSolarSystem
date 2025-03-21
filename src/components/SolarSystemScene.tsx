@@ -263,7 +263,7 @@ export function SolarSystemScene({
 
       renderer.render(scene, camera);
 
-      if (!hasRenderedFirstFrame) {
+       if (!hasRenderedFirstFrame) {
         hasRenderedFirstFrame = true;
         setTimeout(() => setIsLoading(false), 500); // Retraso adicional de 500ms
       }

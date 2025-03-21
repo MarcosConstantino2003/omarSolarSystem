@@ -302,6 +302,12 @@ body {
 .linkedin-logo:hover {
   transform: scale(1.1); 
 }
+
+.linkedin-container {
+  display: inline-block;
+  cursor: pointer;
+}
+
 /* Contenedor del menucito */
 .checkbox-container {
   position: absolute;

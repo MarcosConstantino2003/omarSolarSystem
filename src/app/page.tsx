@@ -29,7 +29,7 @@ const getMinZoom = (planetName: string | null) => {
 };
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef<HTMLDivElement>(null!);;
   const sliderRef = useRef<HTMLInputElement>(null!);;
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
@@ -43,6 +43,7 @@ export default function Home() {
   const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
   const [antialias, setAntialias] = useState(false);
+  const cameraOrientationRef = useRef(new THREE.Quaternion());
 
   const planetNames: { [key: string]: string } = {
     Mercury: "Mercurio", Venus: "Venus", Earth: "Tierra", Mars: "Marte",
@@ -148,9 +149,19 @@ export default function Home() {
           <div className={`contact-info ${contactOpen ? "open" : ""}`}>
             <p>by Marcos Constantino</p>
             <p>• contact me at:</p>
-            <a href="https://www.linkedin.com/in/marquitosconstantino/" target="_blank" rel="noopener noreferrer">
-              <img src="/linkedin.png" alt="LinkedIn" className="linkedin-logo" />
-            </a>
+            <div className="linkedin-container">
+              <a
+                href="https://www.linkedin.com/in/marquitosconstantino/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/linkedin.png"
+                  alt="LinkedIn"
+                  className="linkedin-logo"
+                />
+              </a>
+            </div>
           </div>
         </div>
         <div className="checkbox-container">
