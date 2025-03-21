@@ -14,6 +14,10 @@ import { Saturn } from "../components/Saturn";
 import { Uranus } from "../components/Uranus";
 import { Neptune } from "../components/Neptune";
 import { Pluto } from "../components/Pluto";
+import { Eris } from "../components/Eris";
+import { Ceres } from "../components/Ceres";
+import { Haumea } from "../components/Haumea";
+import { Makemake } from "../components/Makemake";
 import './globals.css';
 
 // Definición de tipos y constantes globales
@@ -28,8 +32,7 @@ interface Planet {
 const MAX_ZOOM = 15000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": return 20;
-    case "Mercury": return 20;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake":return 20;
     case "Venus":
     case "Earth": return 70;
     case "Mars": return 40;
@@ -51,6 +54,26 @@ const planetInclinaciones: { [key: string]: number } = {
   "Uranus": 0.77,
   "Neptune": 1.77,
   "Pluto": 17.14,
+  "Eris":44,
+  "Ceres": 10.7,
+  "Haumea": 28.2,
+  "Makemake": 29,
+};
+
+const planetEllipses: { [key: string]: { a: number; e: number } } = {
+  Mercury: { a: 1800, e: 0.2056 },
+  Venus: { a: 2300, e: 0.0068 },
+  Earth: { a: 2700, e: 0.0167 },
+  Mars: { a: 3100, e: 0.0934 },
+  Jupiter: { a: 4200, e: 0.0484 },
+  Saturn: { a: 5700, e: 0.0556 },
+  Uranus: { a: 7000, e: 0.0472 },
+  Neptune: { a: 7600, e: 0.0086 },
+  Pluto: { a: 9000, e: 0.2488 },
+  Eris: { a: 10200, e: 0.436 },
+  Ceres: { a: 7450, e: 0.075 },
+  Haumea: { a: 11610, e: 0.195 },
+  Makemake: { a: 12258, e: 0.159 },
 };
 
 // Componente principal
@@ -74,7 +97,7 @@ export default function Home() {
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -119,20 +142,40 @@ export default function Home() {
       { name: "Uranus", radius: 7000, angle: 2, speed: 0.0006, mesh: Uranus() },
       { name: "Neptune", radius: 7600, angle: 1, speed: 0.0004, mesh: Neptune() },
       { name: "Pluto", radius: 9000, angle: 0, speed: 0.0002, mesh: Pluto() },
+      { name: "Eris", radius: 10000, angle: 0, speed: 0.0002, mesh: Eris() },
+      { name: "Ceres", radius: 7500, angle: 0, speed: 0.0002, mesh: Ceres() },
+      { name: "Haumea", radius: 12000, angle: 0, speed: 0.0002, mesh: Haumea() },
+      { name: "Makemake", radius: 12300, angle: 0, speed: 0.0002, mesh: Makemake() },
     ];
     //Orbitas
-    planets.forEach(({ mesh, radius, name }) => {
-      scene.add(mesh);
-      const orbit = new THREE.Mesh(
-        new THREE.TorusGeometry(radius, 0.7, 16, 100),
-        new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
-      );
+    // Orbitas
+  planets.forEach(({ mesh, name }) => {
+    scene.add(mesh);
 
-      const inclinacion = planetInclinaciones[name];
-      orbit.rotation.x = Math.PI / 2 + THREE.MathUtils.degToRad(inclinacion); // Añadir la inclinación de la órbita
-      scene.add(orbit);
-      scene.add(orbit);
-    });
+    // Parámetros de la elipse
+    const { a, e } = planetEllipses[name];
+    const b = a * Math.sqrt(1 - e * e); // Semieje menor
+    const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[name]);
+
+    // Generar puntos de la elipse en el plano XZ
+    const points = [];
+    for (let i = 0; i <= 100; i++) {
+      const theta = (i / 100) * 2 * Math.PI;
+      const x = a * Math.cos(theta); // Coordenada X
+      const zBase = b * Math.sin(theta); // Coordenada Z antes de inclinación
+      const y = zBase * Math.sin(inclinacion); // Coordenada Y ajustada por inclinación
+      const z = zBase * Math.cos(inclinacion); // Coordenada Z ajustada por inclinación
+      points.push(new THREE.Vector3(x, y, z));
+    }
+
+    // Crear geometría y línea para la órbita
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const orbit = new THREE.Line(geometry, material);
+
+    scene.add(orbit);
+  });
+  planetsRef.current = planets;
     planetsRef.current = planets;
 
     //Eventos mouse
@@ -194,28 +237,30 @@ export default function Home() {
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach((planet) => {
-        // Incrementar el ángulo de la órbita
+        // Incrementar el ángulo (anomalía media aproximada)
         planet.angle += planet.speed;
         if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
     
-        // Calcular la posición base en el plano XZ (sin inclinación)
-        const x = planet.radius * Math.cos(planet.angle);
-        const z = planet.radius * Math.sin(planet.angle);
+        // Parámetros de la elipse
+        const { a, e } = planetEllipses[planet.name];
+        const b = a * Math.sqrt(1 - e * e); // Semieje menor
     
-        // Obtener la inclinación del planeta en radianes, invertir el signo
-        const inclinacion = THREE.MathUtils.degToRad(-planetInclinaciones[planet.name]); // Negativo para invertir la dirección
+        // Posición en la elipse (plano base XZ)
+        const x = a * Math.cos(planet.angle);
+        const z = b * Math.sin(planet.angle);
     
-        // Aplicar la inclinación rotando el vector de posición alrededor del eje X
-        const y = z * Math.sin(inclinacion); // Ajustar la altura (Y) según la inclinación
+        // Aplicar inclinación
+        const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[planet.name]);
+        const y = z * Math.sin(inclinacion); // Ajustar Y según la inclinación
         const zInclinado = z * Math.cos(inclinacion); // Ajustar Z según la inclinación
     
         // Actualizar la posición del planeta
         planet.mesh.position.set(x, y, zInclinado);
     
-        // Rotación del planeta sobre su propio eje (opcional)
+        // Rotación del planeta sobre su propio eje
         planet.mesh.rotation.y += 0.002;
       });
-    
+
       renderer.render(scene, camera);
     };
     animate();
@@ -255,21 +300,21 @@ export default function Home() {
         const { mesh } = targetPlanet;
         // Obtener la inclinación de la órbita del planeta en radianes
         const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[targetPlanet.name]);
-    
+
         // Calcular la dirección base de la cámara en coordenadas esféricas
         const xBase = Math.cos(rotationY) * Math.sin(rotationX);
         const yBase = Math.sin(rotationY);
         const zBase = Math.cos(rotationY) * Math.cos(rotationX);
-    
+
         // Crear un vector de dirección desde las coordenadas esféricas
         const direction = new THREE.Vector3(xBase, yBase, zBase).normalize();
-    
+
         // Rotar el vector de dirección según la inclinación de la órbita (alrededor del eje X)
         direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), inclinacion);
-    
+
         // Escalar el vector por la distancia de zoom
         const offset = direction.multiplyScalar(zoomDistance);
-    
+
         // Posicionar la cámara relativa a la posición del planeta
         camera.position.copy(mesh.position).add(offset);
         camera.lookAt(mesh.position);
@@ -338,6 +383,10 @@ export default function Home() {
     Uranus: "Urano",
     Neptune: "Neptuno",
     Pluto: "Plutón",
+    Eris: "Eris",
+    Ceres: "Ceres",
+    Haumea: "Haumea",
+    Makemake: "Makemake",
     Sun: "Sol",
   };
 
@@ -360,7 +409,7 @@ export default function Home() {
               <li onClick={() => { setFollowedPlanet(null); setIsOpen(false); }}>
                 {planetNames["Sun"]}
               </li>
-              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"].map((planet) => (
+              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto","Eris","Ceres","Haumea","Makemake"].map((planet) => (
                 <li
                   key={planet}
                   onClick={() => {
@@ -385,21 +434,21 @@ export default function Home() {
           style={{ writingMode: 'vertical-rl' }}
         />
         <div ref={canvasRef} className="w-full h-full" />
-          {/* Contact Info Button */}
-          <div className="contact-container">
+        {/* Contact Info Button */}
+        <div className="contact-container">
           <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
             <span className={`triangle ${contactOpen ? 'active' : ''}`} />
           </button>
-          
+
           {/* Contact Info Panel */}
           {contactOpen && (
             <div className="contact-info open">
               <p> by Marcos Constantino</p>
               <p> • contact me at: </p>
             </div>
-       )}
-       </div>
-     </div>
-   </>
- );
+          )}
+        </div>
+      </div>
+    </>
+  );
 };
