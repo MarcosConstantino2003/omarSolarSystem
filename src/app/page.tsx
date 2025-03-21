@@ -13,6 +13,7 @@ import { Jupiter } from "../components/Jupiter";
 import { Saturn } from "../components/Saturn";
 import { Uranus } from "../components/Uranus";
 import { Neptune } from "../components/Neptune";
+import { Pluto } from "../components/Pluto";
 import './globals.css';
 
 // Definición de tipos y constantes globales
@@ -24,9 +25,10 @@ interface Planet {
   mesh: THREE.Object3D;
 }
 
-const MAX_ZOOM = 10000;
+const MAX_ZOOM = 15000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
+    case "Pluto": return 10;
     case "Mercury": return 10;
     case "Venus":
     case "Earth": return 60;
@@ -37,6 +39,18 @@ const getMinZoom = (planetName: string | null) => {
     case "Saturn": return 450;
     default: return 1700;
   }
+};
+
+const planetInclinaciones: { [key: string]: number } = {
+  "Mercury": 7.00,
+  "Venus": 3.39,
+  "Earth": 0.00,
+  "Mars": 1.85,
+  "Jupiter": 1.31,
+  "Saturn": 2.49,
+  "Uranus": 0.77,
+  "Neptune": 1.77,
+  "Pluto": 17.14,
 };
 
 // Componente principal
@@ -96,23 +110,27 @@ export default function Home() {
 
     //Planetas
     const planets: Planet[] = [
-      { name: "Mercury", radius: 1800, angle: 0, speed: 0.004, mesh: Mercury() },
-      { name: "Venus", radius: 2300, angle: 0, speed: 0.0035, mesh: Venus() },
-      { name: "Earth", radius: 2700, angle: 0, speed: 0.003, mesh: Earth() },
-      { name: "Mars", radius: 3100, angle: 0, speed: 0.0025, mesh: Mars() },
-      { name: "Jupiter", radius: 4200, angle: 0, speed: 0.0015, mesh: Jupiter() },
-      { name: "Saturn", radius: 5700, angle: 0, speed: 0.001, mesh: Saturn() },
-      { name: "Uranus", radius: 7000, angle: 0, speed: 0.0006, mesh: Uranus() },
-      { name: "Neptune", radius: 7600, angle: 0, speed: 0.0004, mesh: Neptune() },
+      { name: "Mercury", radius: 1800, angle: 19, speed: 0.004, mesh: Mercury() },
+      { name: "Venus", radius: 2300, angle: 16, speed: 0.0035, mesh: Venus() },
+      { name: "Earth", radius: 2700, angle: 13, speed: 0.003, mesh: Earth() },
+      { name: "Mars", radius: 3100, angle: 11, speed: 0.0025, mesh: Mars() },
+      { name: "Jupiter", radius: 4200, angle: 7, speed: 0.0015, mesh: Jupiter() },
+      { name: "Saturn", radius: 5700, angle: 4, speed: 0.001, mesh: Saturn() },
+      { name: "Uranus", radius: 7000, angle: 2, speed: 0.0006, mesh: Uranus() },
+      { name: "Neptune", radius: 7600, angle: 1, speed: 0.0004, mesh: Neptune() },
+      { name: "Pluto", radius: 9000, angle: 0, speed: 0.0002, mesh: Pluto() },
     ];
     //Orbitas
-    planets.forEach(({ mesh, radius }) => {
+    planets.forEach(({ mesh, radius, name }) => {
       scene.add(mesh);
       const orbit = new THREE.Mesh(
         new THREE.TorusGeometry(radius, 0.7, 16, 100),
         new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
       );
-      orbit.rotation.x = Math.PI / 2;
+
+      const inclinacion = planetInclinaciones[name];
+      orbit.rotation.x = Math.PI / 2 + THREE.MathUtils.degToRad(inclinacion); // Añadir la inclinación de la órbita
+      scene.add(orbit);
       scene.add(orbit);
     });
     planetsRef.current = planets;
@@ -176,13 +194,28 @@ export default function Home() {
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach((planet) => {
+        // Incrementar el ángulo de la órbita
         planet.angle += planet.speed;
         if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
+    
+        // Calcular la posición base en el plano XZ (sin inclinación)
         const x = planet.radius * Math.cos(planet.angle);
         const z = planet.radius * Math.sin(planet.angle);
-        planet.mesh.position.set(x, 0, z);
+    
+        // Obtener la inclinación del planeta en radianes, invertir el signo
+        const inclinacion = THREE.MathUtils.degToRad(-planetInclinaciones[planet.name]); // Negativo para invertir la dirección
+    
+        // Aplicar la inclinación rotando el vector de posición alrededor del eje X
+        const y = z * Math.sin(inclinacion); // Ajustar la altura (Y) según la inclinación
+        const zInclinado = z * Math.cos(inclinacion); // Ajustar Z según la inclinación
+    
+        // Actualizar la posición del planeta
+        planet.mesh.position.set(x, y, zInclinado);
+    
+        // Rotación del planeta sobre su propio eje (opcional)
         planet.mesh.rotation.y += 0.002;
       });
+    
       renderer.render(scene, camera);
     };
     animate();
@@ -289,6 +322,7 @@ export default function Home() {
     Saturn: "Saturno",
     Uranus: "Urano",
     Neptune: "Neptuno",
+    Pluto: "Plutón",
     Sun: "Sol",
   };
 
@@ -311,7 +345,7 @@ export default function Home() {
               <li onClick={() => { setFollowedPlanet(null); setIsOpen(false); }}>
                 {planetNames["Sun"]}
               </li>
-              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"].map((planet) => (
+              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"].map((planet) => (
                 <li
                   key={planet}
                   onClick={() => {

@@ -17,7 +17,7 @@ export const Sun = () => {
   sunGroup.add(sunMesh);
 
   // Add a PointLight to make the Sun emit light
-  const sunLight = new THREE.PointLight(0xffffff, 52000000, 10000); // Color, intensity, distance
+  const sunLight = new THREE.PointLight(0xffffff, 52000000, 20000); // Color, intensity, distance
   sunLight.position.set(0, 0, 0); // Light originates from the Sun's center
   sunLight.castShadow = true; // Enable shadow casting
   sunGroup.add(sunLight);
