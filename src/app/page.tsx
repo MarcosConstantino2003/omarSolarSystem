@@ -28,15 +28,15 @@ interface Planet {
 const MAX_ZOOM = 15000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": return 10;
-    case "Mercury": return 10;
+    case "Pluto": return 20;
+    case "Mercury": return 20;
     case "Venus":
-    case "Earth": return 60;
-    case "Mars": return 30;
+    case "Earth": return 70;
+    case "Mars": return 40;
     case "Uranus":
-    case "Neptune": return 300;
+    case "Neptune": return 320;
     case "Jupiter":
-    case "Saturn": return 450;
+    case "Saturn": return 470;
     default: return 1700;
   }
 };
@@ -253,10 +253,25 @@ export default function Home() {
 
       if (targetPlanet) {
         const { mesh } = targetPlanet;
-        const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
-        const y = zoomDistance * Math.sin(rotationY);
-        const z = zoomDistance * Math.cos(rotationY) * Math.cos(rotationX);
-        camera.position.set(mesh.position.x + x, y, mesh.position.z + z);
+        // Obtener la inclinación de la órbita del planeta en radianes
+        const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[targetPlanet.name]);
+    
+        // Calcular la dirección base de la cámara en coordenadas esféricas
+        const xBase = Math.cos(rotationY) * Math.sin(rotationX);
+        const yBase = Math.sin(rotationY);
+        const zBase = Math.cos(rotationY) * Math.cos(rotationX);
+    
+        // Crear un vector de dirección desde las coordenadas esféricas
+        const direction = new THREE.Vector3(xBase, yBase, zBase).normalize();
+    
+        // Rotar el vector de dirección según la inclinación de la órbita (alrededor del eje X)
+        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), inclinacion);
+    
+        // Escalar el vector por la distancia de zoom
+        const offset = direction.multiplyScalar(zoomDistance);
+    
+        // Posicionar la cámara relativa a la posición del planeta
+        camera.position.copy(mesh.position).add(offset);
         camera.lookAt(mesh.position);
       } else {
         const x = zoomDistance * Math.cos(rotationY) * Math.sin(rotationX);
