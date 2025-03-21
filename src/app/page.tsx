@@ -15,6 +15,7 @@ import { Uranus } from "../components/Uranus";
 import { Neptune } from "../components/Neptune";
 import './globals.css';
 
+// Definición de tipos y constantes globales
 interface Planet {
   name: string;
   radius: number;
@@ -23,36 +24,46 @@ interface Planet {
   mesh: THREE.Object3D;
 }
 
-// ... imports y definiciones previas sin cambios ...
+const MAX_ZOOM = 10000;
+const getMinZoom = (planetName: string | null) => {
+  switch (planetName) {
+    case "Mercury": return 10;
+    case "Venus":
+    case "Earth": return 60;
+    case "Mars": return 30;
+    case "Uranus":
+    case "Neptune": return 300;
+    case "Jupiter":
+    case "Saturn": return 450;
+    default: return 1700;
+  }
+};
 
+// Componente principal
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLInputElement>(null);
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
-  const sliderRef = useRef<HTMLInputElement>(null); 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planetsRef = useRef<Planet[]>([]);
   const sunRef = useRef<THREE.Object3D | null>(null);
-  const rotationRef = useRef({ x: Math.PI / 2, y: Math.PI / 4 });
-  const zoomDistanceRef = useRef(Math.sqrt(6000 * 1000 + 6000 * 1000 + 6000 * 1000));
+  const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z:Math.PI / 4});
+  const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
 
-  // Primer useEffect: Configuración inicial
+  // Configuración inicial de la escena (se ejecuta una vez)
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Escena
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
 
-    // Cámara
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
-    camera.position.set(3000, 4000, 3000);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvasRef.current.appendChild(renderer.domElement);
@@ -60,43 +71,27 @@ export default function Home() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    // Sol
+    //Sol 
     const sun = Sun();
     scene.add(sun);
     sunRef.current = sun;
 
-    // Luz ambiental
+    //Luz global
     const ambientLight = new THREE.AmbientLight(0x404040, 1);
     scene.add(ambientLight);
 
-    // Cubo de prueba
-    const createTextTexture = (text: string) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = 256;
-      canvas.height = 256;
-      if (ctx) {
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.font = "24px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-      }
-      return new THREE.CanvasTexture(canvas);
-    };
+    //Cubo 
     const textTexture = createTextTexture("easter egg decirle a omar");
     const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
     const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
     testCube.position.set(0, 0, 0);
     scene.add(testCube);
 
-    // Estrellas
+    //Estrellas
     const stars = Stars();
     scene.add(stars);
 
-    // Planetas
+    //Planetas
     const planets: Planet[] = [
       { name: "Mercury", radius: 1800, angle: 0, speed: 0.004, mesh: Mercury() },
       { name: "Venus", radius: 2300, angle: 0, speed: 0.0035, mesh: Venus() },
@@ -107,7 +102,8 @@ export default function Home() {
       { name: "Uranus", radius: 7000, angle: 0, speed: 0.0006, mesh: Uranus() },
       { name: "Neptune", radius: 7600, angle: 0, speed: 0.0004, mesh: Neptune() },
     ];
-    planets.forEach(({ mesh, radius }) => {
+    //Orbitas
+    planets.forEach(({ mesh, radius }) => { 
       scene.add(mesh);
       const orbit = new THREE.Mesh(
         new THREE.TorusGeometry(radius, 0.7, 16, 100),
@@ -118,7 +114,7 @@ export default function Home() {
     });
     planetsRef.current = planets;
 
-    // Eventos de ratón (sin scroll aquí)
+    //Eventos mouse
     let isDragging = false;
     let previousMouseX = 0, previousMouseY = 0;
 
@@ -161,7 +157,6 @@ export default function Home() {
       if (intersectsSun.length > 0) setFollowedPlanet(null);
     };
 
-    // Listeners (sin wheel aquí)
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
@@ -174,7 +169,7 @@ export default function Home() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Animación
+    //Animacion planetas
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach((planet) => {
@@ -189,7 +184,6 @@ export default function Home() {
     };
     animate();
 
-    // Limpieza
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousedown", onMouseDown);
@@ -200,7 +194,7 @@ export default function Home() {
     };
   }, []);
 
-  // Segundo useEffect: Actualización de la cámara y control de zoom
+  // Actualización dinámica de la cámara y zoom
   useEffect(() => {
     const camera = cameraRef.current;
     const sun = sunRef.current;
@@ -208,22 +202,6 @@ export default function Home() {
     const slider = sliderRef.current;
     if (!camera || !sun) return;
 
-    const MAX_ZOOM = 10000;
-    const getMinZoom = (planetName: string | null) => {
-      switch (planetName) {
-        case "Mercury": return 10;
-        case "Venus":
-        case "Earth": return 60;
-        case "Mars": return 30;
-        case "Uranus":
-        case "Neptune": return 300;
-        case "Jupiter":
-        case "Saturn": return 450;
-        default: return 1700;
-      }
-    };
-
-    // Inicializar zoom al triple del mínimo al seguir un planeta
     if (followedPlanet) {
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
@@ -251,11 +229,10 @@ export default function Home() {
         camera.position.set(x, y, z);
         camera.lookAt(sun.position);
       }
-      if (slider) slider.value = String(100 * (1 - (zoomDistance - minZoom) / (MAX_ZOOM - minZoom)));
 
+      if (slider) slider.value = String(100 * (1 - (zoomDistance - minZoom) / (MAX_ZOOM - minZoom)));
     };
 
-    // Scroll para controlar el zoom
     const onScroll = (event: WheelEvent) => {
       const minZoom = getMinZoom(followedPlanet);
       const zoomSpeed = zoomDistanceRef.current * 0.001;
@@ -270,13 +247,36 @@ export default function Home() {
     };
     animateCamera();
 
-    // Limpieza del evento de scroll
     return () => {
       window.removeEventListener("wheel", onScroll);
     };
   }, [followedPlanet]);
 
-  const [isOpen, setIsOpen] = useState(false);
+  // Funciones de utilidad
+  const createTextTexture = (text: string) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 256;
+    canvas.height = 256;
+    if (ctx) {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    }
+    return new THREE.CanvasTexture(canvas);
+  };
+
+  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const minZoom = getMinZoom(followedPlanet);
+    const sliderValue = Number(event.target.value);
+    zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
+  };
+
+  // Renderizado del componente
   const planetNames: { [key: string]: string } = {
     Mercury: "Mercurio",
     Venus: "Venus",
@@ -289,25 +289,7 @@ export default function Home() {
     Sun: "Sol",
   };
 
-  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const MAX_ZOOM = 10000;
-    const getMinZoom = (planetName: string | null) => {
-      switch (planetName) {
-        case "Mercury": return 10;
-        case "Venus":
-        case "Earth": return 60;
-        case "Mars": return 30;
-        case "Uranus":
-        case "Neptune": return 300;
-        case "Jupiter":
-        case "Saturn": return 450;
-        default: return 1700;
-      }
-    };
-    const minZoom = getMinZoom(followedPlanet);
-    const sliderValue = Number(event.target.value); // 0 a 100
-    zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -344,9 +326,9 @@ export default function Home() {
           min="0"
           max="100"
           defaultValue="50"
+          ref={sliderRef}
           onChange={handleZoomChange}
-          ref={sliderRef} 
-          className="absolute bottom-4 left-4 h-48 w-6 bg-gray-800 text-white transform -rotate-180"
+          className="zoom-slider absolute bottom-4 left-4"
           style={{ writingMode: 'vertical-rl' }}
         />
         <div ref={canvasRef} className="w-full h-full" />
