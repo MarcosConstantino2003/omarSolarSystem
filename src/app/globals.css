@@ -33,67 +33,84 @@ body {
 
 /* MENU DROPDOWN */
 
+/* Menu Dropdown */
+
 .planet-dropdown-container {
-  position: absolute; 
-  top: 4px; 
-  left: 4px; 
-  z-index: 10;
-  display: inline-block;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 200;
+  text-align: center;
+  text-shadow: 0 0 15px rgb(255, 255, 255, 0.6),
+               0 0 30px rgba(255, 255, 255, 0.4); 
 }
 
 .planet-dropdown-button {
-  background-color: #000000;
-  color: #ffffff;
-  padding: 8px 16px;
+  background-color: #020a28;
+  color:  #ffffff;
+  padding: 5px 5px;
   border: 1px solid #333333;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 16px;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease, transform 0.3s ease;
-  width: 150px;
-  text-align: center
+  width: 180px;
+  text-align: center;
 }
 
 .planet-dropdown-button:hover {
-  text-shadow: 0 0 15px rgba(0, 183, 255, 1),
-    0 0 30px rgba(0, 183, 255, 0.8);
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.6);
   border-color: #00b7ff;
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(0, 183, 255, 0.7);
-  
+  transform: translateY(-2px);
+  text-shadow: 0 0 10px rgb(255, 255, 255),
+               0 0 20px rgba(255, 255, 255, 0.8),
+               0 0 30px rgba(255, 255, 255, 0.6); 
 }
 
 .planet-dropdown-list {
   position: absolute;
-  top: 100%;
+  top: 50px;
   left: 0;
-  background-color: #1a1a1a;
-  border: 1px solid #333333;
-  border-radius: 4px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: auto;
-  z-index: 20;
-  width: 150px; 
-  text-align: center;
+  background-color: #111;
+  color: #fff;
+  border-radius: 10px;
+  padding: 4px;
+  width: 180px;
+  box-shadow: 0 12px 35px rgba(16, 39, 112, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
 }
 
 .planet-dropdown-list li {
-  color: #ffffff;
+  padding: 6px 6px;
+  list-style: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: normal; 
+  transition: all 0.2s ease;
 }
 
 .planet-dropdown-list li:hover {
-  text-shadow: 0 0 20px rgba(0, 183, 255, 1),
-               0 0 40px rgba(0, 183, 255, 0.9),
-               0 0 60px rgba(0, 183, 255, 0.8);
-  background-color: rgba(0, 183, 255, 0.2);
-  font-weight: bold;
+  background-color: #ffffff;
+  color: #000000;
+  text-shadow: 0 0 10px rgb(0, 0, 0),
+  0 0 20px rgba(255, 255, 255, 0.8),
+  0 0 30px rgba(0, 0, 0, 0.6); 
 }
+
+.planet-dropdown-list li:active {
+  background-color: #000000;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+
+  color: #ffffff;
+}
+
+.planet-dropdown-container .planet-dropdown-list {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 
 /* CANVAS FULL SCREEN */
 .w-full.h-screen {
@@ -138,4 +155,70 @@ body {
   transition: transform 0.2s ease;
 }
 
+/* Contact Info Button */
+.contact-container {
+  position: fixed;
+  bottom: 20px;
+  right: 40px;
+  z-index: 200;
+  border: solid white 2px;
+  border-radius: 7px;
+  text-align: center;
+  background-color: black;
+}
 
+.contact-button {
+  background-color: transparent;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #ffffff; /* Upward triangle */
+  display: block;
+}
+
+/* Contact Info Panel */
+.contact-info {
+  width: 350px; /* Wider width for horizontal layout */
+  height: 120px; /* Shorter height */
+  background-color: #fbf6f6;
+  border-radius: 15px;
+  box-shadow: 0 12px 35px rgba(16, 39, 112, 0.15);
+  padding: 8px;
+  position: absolute;
+  bottom: 50px; /* Position above the button */
+  right: -5px; /* Adjusted to make sure the panel is placed properly */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px); /* Start off above the screen */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Animate opacity and transform */
+  text-align: center; /* Center the text */
+  color: #000000; /* Black text */
+}
+
+.contact-info.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0); /* Move down to its normal position */
+}
+
+.contact-button.active .triangle {
+  transform: rotate(180deg); /* Make the triangle point down */
+}
+
+/* Glowing Text */
+.contact-info p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+  text-shadow: 0 0 10px rgb(0, 0, 0),
+               0 0 20px rgba(0, 0, 0, 0.8),
+               0 0 30px rgba(0, 0, 0, 0.6); /* Glow effect */
+}

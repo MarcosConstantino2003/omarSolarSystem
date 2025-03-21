@@ -49,7 +49,7 @@ export default function Home() {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planetsRef = useRef<Planet[]>([]);
   const sunRef = useRef<THREE.Object3D | null>(null);
-  const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z:Math.PI / 4});
+  const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z: Math.PI / 4 });
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
 
   // Configuración inicial de la escena (se ejecuta una vez)
@@ -70,6 +70,9 @@ export default function Home() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    canvasRef.current.appendChild(renderer.domElement);
 
     //Sol 
     const sun = Sun();
@@ -77,7 +80,7 @@ export default function Home() {
     sunRef.current = sun;
 
     //Luz global
-    const ambientLight = new THREE.AmbientLight(0x404040, 1.3);
+    const ambientLight = new THREE.AmbientLight(0x404040, 1.7);
     scene.add(ambientLight);
 
     //Cubo 
@@ -103,7 +106,7 @@ export default function Home() {
       { name: "Neptune", radius: 7600, angle: 0, speed: 0.0004, mesh: Neptune() },
     ];
     //Orbitas
-    planets.forEach(({ mesh, radius }) => { 
+    planets.forEach(({ mesh, radius }) => {
       scene.add(mesh);
       const orbit = new THREE.Mesh(
         new THREE.TorusGeometry(radius, 0.7, 16, 100),
@@ -290,6 +293,7 @@ export default function Home() {
   };
 
   const [isOpen, setIsOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false); // State for contact info panel
 
   return (
     <>
@@ -332,7 +336,21 @@ export default function Home() {
           style={{ writingMode: 'vertical-rl' }}
         />
         <div ref={canvasRef} className="w-full h-full" />
-      </div>
-    </>
-  );
-}
+          {/* Contact Info Button */}
+          <div className="contact-container">
+          <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
+            <span className={`triangle ${contactOpen ? 'active' : ''}`} />
+          </button>
+          
+          {/* Contact Info Panel */}
+          {contactOpen && (
+            <div className="contact-info open">
+              <p> by Marcos Constantino</p>
+              <p> • contact me at: </p>
+            </div>
+       )}
+       </div>
+     </div>
+   </>
+ );
+};

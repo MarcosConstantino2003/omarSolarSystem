@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
 export const Saturn = () => {
   const textureLoader = new THREE.TextureLoader();
@@ -19,7 +19,7 @@ export const Saturn = () => {
   const asteroidGeometry = new THREE.BufferGeometry();
   const numAsteroids = 16000; // Más asteroides
   const innerRadius = 340;
-  const outerRadius = 600; 
+  const outerRadius = 600;
 
   const asteroidVertices = [];
   const asteroidColors = [];
@@ -46,19 +46,22 @@ export const Saturn = () => {
   asteroidGeometry.setAttribute("position", new THREE.Float32BufferAttribute(asteroidVertices, 3));
   asteroidGeometry.setAttribute("color", new THREE.Float32BufferAttribute(asteroidColors, 3));
 
+  // Material Phong para los asteroides
   const asteroidMaterial = new THREE.PointsMaterial({
     vertexColors: true, // Permite el degradado de colores
     size: 2,
   });
 
+  // Asteroides como puntos
   const asteroidRing = new THREE.Points(asteroidGeometry, asteroidMaterial);
   asteroidRing.rotation.x = Math.PI * 1.1;
-  asteroidRing.castShadow = true; 
-  asteroidRing.receiveShadow = true; 
+  asteroidRing.castShadow = true;
+  asteroidRing.receiveShadow = true;
 
   // 📦 Grupo Saturno + anillo
   const saturnWithRing = new THREE.Group();
   saturnWithRing.add(saturnMesh);
+  
   saturnWithRing.add(asteroidRing);
 
   return saturnWithRing;
