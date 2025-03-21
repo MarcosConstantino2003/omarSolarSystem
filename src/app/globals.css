@@ -222,3 +222,61 @@ body {
                0 0 20px rgba(0, 0, 0, 0.8),
                0 0 30px rgba(0, 0, 0, 0.6); /* Glow effect */
 }
+
+/* Contenedor de la checkbox en la esquina superior derecha */
+.dwarf-orbits-checkbox-container {
+  position: absolute;
+  top: 10px; 
+  right: 10px; 
+}
+
+/* Estilo de la etiqueta */
+.dwarf-orbits-label {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio entre checkbox y texto */
+  color: #ffffff; /* Texto blanco */
+  font-size: 14px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Brillo sutil */
+  background: rgba(30, 58, 138, 0.3); /* Fondo azul oscuro semitransparente */
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #00479e; /* Borde azul claro */
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* Hover en la etiqueta */
+.dwarf-orbits-label:hover {
+  background: rgba(30, 58, 138, 0.6); /* Más opacidad al pasar el mouse */
+}
+
+/* Estilo de la checkbox */
+.dwarf-orbits-label input[type="checkbox"] {
+  appearance: none; /* Eliminar estilo por defecto */
+  width: 16px;
+  height: 16px;
+  background: #0a1a3d; /* Fondo azul oscuro */
+  border: 2px solid #60a5fa; /* Borde azul claro */
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Estilo cuando está marcada */
+.dwarf-orbits-label input[type="checkbox"]:checked {
+  background: #60a5fa; /* Azul claro cuando está marcada */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); 
+
+}
+
+/* Checkmark personalizado */
+.dwarf-orbits-label input[type="checkbox"]:checked::after {
+  content: "✔"; /* Símbolo de check */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 12px;
+}

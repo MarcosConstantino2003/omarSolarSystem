@@ -29,7 +29,7 @@ interface Planet {
   mesh: THREE.Object3D;
 }
 
-const MAX_ZOOM = 15000;
+const MAX_ZOOM = 20000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
     case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake":return 20;
@@ -71,7 +71,7 @@ const planetEllipses: { [key: string]: { a: number; e: number } } = {
   Neptune: { a: 7600, e: 0.0086 },
   Pluto: { a: 9000, e: 0.2488 },
   Eris: { a: 10200, e: 0.436 },
-  Ceres: { a: 7450, e: 0.075 },
+  Ceres: { a: 3800, e: 0.075 },
   Haumea: { a: 11610, e: 0.195 },
   Makemake: { a: 12258, e: 0.159 },
 };
@@ -88,6 +88,9 @@ export default function Home() {
   const sunRef = useRef<THREE.Object3D | null>(null);
   const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z: Math.PI / 4 });
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
+  const [showDwarfOrbits, setShowDwarfOrbits] = useState(true); 
+  const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"]; 
+
 
   // Configuración inicial de la escena (se ejecuta una vez)
   useEffect(() => {
@@ -147,7 +150,7 @@ export default function Home() {
       { name: "Haumea", radius: 12000, angle: 0, speed: 0.0002, mesh: Haumea() },
       { name: "Makemake", radius: 12300, angle: 0, speed: 0.0002, mesh: Makemake() },
     ];
-    //Orbitas
+
     // Orbitas
   planets.forEach(({ mesh, name }) => {
     scene.add(mesh);
@@ -173,7 +176,10 @@ export default function Home() {
     const material = new THREE.LineBasicMaterial({ color: 0xffffff });
     const orbit = new THREE.Line(geometry, material);
 
-    scene.add(orbit);
+     // Mostrar u ocultar órbitas de planetas enanos según el estado
+     orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
+     orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) }; 
+     scene.add(orbit);
   });
   planetsRef.current = planets;
     planetsRef.current = planets;
@@ -409,7 +415,7 @@ export default function Home() {
               <li onClick={() => { setFollowedPlanet(null); setIsOpen(false); }}>
                 {planetNames["Sun"]}
               </li>
-              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto","Eris","Ceres","Haumea","Makemake"].map((planet) => (
+              {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"].map((planet) => (
                 <li
                   key={planet}
                   onClick={() => {
@@ -434,13 +440,10 @@ export default function Home() {
           style={{ writingMode: 'vertical-rl' }}
         />
         <div ref={canvasRef} className="w-full h-full" />
-        {/* Contact Info Button */}
         <div className="contact-container">
           <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
             <span className={`triangle ${contactOpen ? 'active' : ''}`} />
           </button>
-
-          {/* Contact Info Panel */}
           {contactOpen && (
             <div className="contact-info open">
               <p> by Marcos Constantino</p>
@@ -448,7 +451,28 @@ export default function Home() {
             </div>
           )}
         </div>
+        {/* Checkbox movida a la esquina superior derecha */}
+        <div className="dwarf-orbits-checkbox-container">
+          <label className="dwarf-orbits-label">
+            <input
+              type="checkbox"
+              checked={showDwarfOrbits}
+              onChange={(e) => {
+                setShowDwarfOrbits(e.target.checked);
+                const scene = sceneRef.current;
+                if (scene) {
+                  scene.traverse((object) => {
+                    if (object.userData.isDwarfOrbit) {
+                      object.visible = e.target.checked;
+                    }
+                  });
+                }
+              }}
+            />
+            Órbitas de enanos
+          </label>
+        </div>
       </div>
     </>
   );
-};
+}
