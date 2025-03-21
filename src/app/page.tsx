@@ -23,18 +23,21 @@ interface Planet {
   mesh: THREE.Object3D;
 }
 
+// ... imports y definiciones previas sin cambios ...
+
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
+  const sliderRef = useRef<HTMLInputElement>(null); 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planetsRef = useRef<Planet[]>([]);
   const sunRef = useRef<THREE.Object3D | null>(null);
-  const rotationRef = useRef({ x: Math.PI / 2, y: Math.PI / 4 }); // Ángulos iniciales aproximados
-  const zoomDistanceRef = useRef(Math.sqrt(6000 * 1000 + 6000 * 1000 + 6000 * 1000)); // Distancia inicial ≈ 1732
+  const rotationRef = useRef({ x: Math.PI / 2, y: Math.PI / 4 });
+  const zoomDistanceRef = useRef(Math.sqrt(6000 * 1000 + 6000 * 1000 + 6000 * 1000));
 
-  // Primer useEffect: Configuración inicial (solo se ejecuta una vez)
+  // Primer useEffect: Configuración inicial
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -42,7 +45,6 @@ export default function Home() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
-
 
     // Cámara
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
@@ -116,7 +118,7 @@ export default function Home() {
     });
     planetsRef.current = planets;
 
-    // Eventos de ratón
+    // Eventos de ratón (sin scroll aquí)
     let isDragging = false;
     let previousMouseX = 0, previousMouseY = 0;
 
@@ -159,35 +161,11 @@ export default function Home() {
       if (intersectsSun.length > 0) setFollowedPlanet(null);
     };
 
-    // Zoom dinámico
-    const MAX_ZOOM = 10000;
-    const getMinZoom = (planetName: string | null) => {
-      switch (planetName) {
-        case "Mercury": return 10;
-        case "Venus":
-        case "Earth": return 60;
-        case "Mars": return 30;
-        case "Uranus":
-        case "Neptune": return 300;
-        case "Jupiter":
-        case "Saturn": return 450;
-        default: return 10;
-      }
-    };
-
-    const onScroll = (event: WheelEvent) => {
-      const zoomSpeed = zoomDistanceRef.current * 0.001;
-      zoomDistanceRef.current += event.deltaY * zoomSpeed;
-      const MIN_ZOOM = getMinZoom(followedPlanet);
-      zoomDistanceRef.current = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomDistanceRef.current));
-    };
-
-    // Listeners
+    // Listeners (sin wheel aquí)
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("click", onClick);
-    window.addEventListener("wheel", onScroll);
 
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -199,8 +177,6 @@ export default function Home() {
     // Animación
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Mover planetas
       planets.forEach((planet) => {
         planet.angle += planet.speed;
         if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
@@ -209,8 +185,6 @@ export default function Home() {
         planet.mesh.position.set(x, 0, z);
         planet.mesh.rotation.y += 0.002;
       });
-
-      // Actualizar cámara (se maneja en el segundo useEffect, pero renderizamos aquí)
       renderer.render(scene, camera);
     };
     animate();
@@ -221,20 +195,20 @@ export default function Home() {
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("wheel", onScroll);
       window.removeEventListener("click", onClick);
       canvasRef.current?.removeChild(renderer.domElement);
     };
-  }, []); // Sin dependencias, solo se ejecuta al montar
+  }, []);
 
-  // Segundo useEffect: Actualización de la cámara según el planeta seguido
+  // Segundo useEffect: Actualización de la cámara y control de zoom
   useEffect(() => {
     const camera = cameraRef.current;
     const sun = sunRef.current;
     const planets = planetsRef.current;
+    const slider = sliderRef.current;
     if (!camera || !sun) return;
 
-    // Definir zoom mínimo según el planeta
+    const MAX_ZOOM = 10000;
     const getMinZoom = (planetName: string | null) => {
       switch (planetName) {
         case "Mercury": return 10;
@@ -245,10 +219,11 @@ export default function Home() {
         case "Neptune": return 300;
         case "Jupiter":
         case "Saturn": return 450;
-        default: return 10; // Valor por defecto para el Sol o sin planeta
+        default: return 1700;
       }
     };
 
+    // Inicializar zoom al triple del mínimo al seguir un planeta
     if (followedPlanet) {
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
@@ -260,6 +235,7 @@ export default function Home() {
       const targetPlanet = planets.find(p => p.name === followedPlanet);
       const { x: rotationX, y: rotationY } = rotationRef.current;
       const zoomDistance = zoomDistanceRef.current;
+      const minZoom = getMinZoom(followedPlanet);
 
       if (targetPlanet) {
         const { mesh } = targetPlanet;
@@ -275,15 +251,30 @@ export default function Home() {
         camera.position.set(x, y, z);
         camera.lookAt(sun.position);
       }
+      if (slider) slider.value = String(100 * (1 - (zoomDistance - minZoom) / (MAX_ZOOM - minZoom)));
+
     };
 
-    // Actualizar cámara inmediatamente y en cada frame
+    // Scroll para controlar el zoom
+    const onScroll = (event: WheelEvent) => {
+      const minZoom = getMinZoom(followedPlanet);
+      const zoomSpeed = zoomDistanceRef.current * 0.001;
+      zoomDistanceRef.current += event.deltaY * zoomSpeed;
+      zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
+    };
+    window.addEventListener("wheel", onScroll);
+
     const animateCamera = () => {
       updateCamera();
       requestAnimationFrame(animateCamera);
     };
     animateCamera();
-  }, [followedPlanet]); // Solo depende de followedPlanet
+
+    // Limpieza del evento de scroll
+    return () => {
+      window.removeEventListener("wheel", onScroll);
+    };
+  }, [followedPlanet]);
 
   const [isOpen, setIsOpen] = useState(false);
   const planetNames: { [key: string]: string } = {
@@ -310,14 +301,14 @@ export default function Home() {
         case "Neptune": return 300;
         case "Jupiter":
         case "Saturn": return 450;
-        default: return 10;
+        default: return 1700;
       }
     };
     const minZoom = getMinZoom(followedPlanet);
     const sliderValue = Number(event.target.value); // 0 a 100
-    // Invertimos el valor: slider alto = zoom bajo (minZoom), slider bajo = zoom alto (MAX_ZOOM)
     zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
   };
+
   return (
     <>
       <Head>
@@ -348,13 +339,13 @@ export default function Home() {
             </ul>
           )}
         </div>
-        {/* Slider vertical para el zoom */}
         <input
           type="range"
           min="0"
           max="100"
-          defaultValue="50" // Valor inicial intermedio
+          defaultValue="50"
           onChange={handleZoomChange}
+          ref={sliderRef} 
           className="absolute bottom-4 left-4 h-48 w-6 bg-gray-800 text-white transform -rotate-180"
           style={{ writingMode: 'vertical-rl' }}
         />
