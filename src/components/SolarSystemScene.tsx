@@ -55,6 +55,7 @@ export function SolarSystemScene({
   rotationRef,
   setFollowedPlanet,
   showDwarfOrbits,
+  antialias,
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.MutableRefObject<THREE.Scene | null>;
@@ -65,6 +66,7 @@ export function SolarSystemScene({
   rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>;
   setFollowedPlanet: (planet: string | null) => void;
   showDwarfOrbits: boolean;
+  antialias: boolean;
 }) {
   const createTextTexture = (text: string) => {
     const canvas = document.createElement("canvas");
@@ -83,7 +85,7 @@ export function SolarSystemScene({
   };
 
   useEffect(() => {
-    if (!canvasRef || !canvasRef.current) return; 
+    if (!canvasRef || !canvasRef.current) return;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
@@ -93,9 +95,9 @@ export function SolarSystemScene({
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    canvasRef.current.appendChild(renderer.domElement);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
@@ -270,5 +272,31 @@ export function SolarSystemScene({
     };
   }, []);
 
+  useEffect(() => {
+    if (!canvasRef || !canvasRef.current) return;
+
+    // Crear un WebGLRenderer con antialias para suavizar bordes
+    const renderer = new THREE.WebGLRenderer({ antialias: antialias });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    if (antialias) {
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
+      renderer.setClearColor(0x000000, 1.0);
+    } else {
+      // Configuración de baja calidad
+      renderer.shadowMap.enabled = false;
+    }
+
+    canvasRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+
+    return () => {
+      if (rendererRef.current && canvasRef.current) {
+        canvasRef.current.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose(); // Liberar recursos (si dispose existe)
+      }
+    };
+  }, [antialias]);
   return null;
 }

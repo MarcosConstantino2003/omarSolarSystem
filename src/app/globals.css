@@ -15,13 +15,13 @@
 
 html,
 body {
-  font-family: "VT323", monospace; 
+  font-family: "VT323", monospace;
   font-weight: 400;
   font-style: normal;
   margin: 0;
   padding: 0;
-  height: 100vh; 
-  overflow: hidden; 
+  height: 100vh;
+  overflow: hidden;
 }
 
 body {
@@ -42,12 +42,12 @@ body {
   z-index: 200;
   text-align: center;
   text-shadow: 0 0 15px rgb(255, 255, 255, 0.6),
-               0 0 30px rgba(255, 255, 255, 0.4); 
+    0 0 30px rgba(255, 255, 255, 0.4);
 }
 
 .planet-dropdown-button {
   background-color: #020a28;
-  color:  #ffffff;
+  color: #ffffff;
   padding: 5px 5px;
   border: 1px solid #333333;
   border-radius: 10px;
@@ -63,8 +63,8 @@ body {
   border-color: #00b7ff;
   transform: translateY(-2px);
   text-shadow: 0 0 10px rgb(255, 255, 255),
-               0 0 20px rgba(255, 255, 255, 0.8),
-               0 0 30px rgba(255, 255, 255, 0.6); 
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(255, 255, 255, 0.6);
 }
 
 .planet-dropdown-list {
@@ -94,8 +94,8 @@ body {
   background-color: #ffffff;
   color: #000000;
   text-shadow: 0 0 10px rgb(0, 0, 0),
-  0 0 20px rgba(255, 255, 255, 0.8),
-  0 0 30px rgba(0, 0, 0, 0.6); 
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(0, 0, 0, 0.6);
 }
 
 .planet-dropdown-list li:active {
@@ -123,9 +123,11 @@ body {
 /* Estilos para el slider de zoom */
 .zoom-slider {
   writing-mode: bt-lr;
-  height: 8rem; /* Ajustado a tu preferencia */
+  height: 8rem;
+  /* Ajustado a tu preferencia */
   width: 1.5rem;
-  background: linear-gradient(to top, #210227, #ee10c5); /* Gradiente azul oscuro */
+  background: linear-gradient(to top, #210227, #ee10c5);
+  /* Gradiente azul oscuro */
   border-radius: 1rem;
   transform: rotate(180deg);
   cursor: pointer;
@@ -137,8 +139,9 @@ body {
   -webkit-appearance: none;
   width: 1.8rem;
   height: 1.8rem;
-  background: linear-gradient(to top, #746776, #ee10c5);;
-  border: 2px solid #000000; 
+  background: linear-gradient(to top, #746776, #ee10c5);
+  ;
+  border: 2px solid #000000;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
@@ -147,7 +150,7 @@ body {
 .zoom-slider::-moz-range-thumb {
   width: 1.8rem;
   height: 1.8rem;
-  background: #ffffff; 
+  background: #ffffff;
   border: 2px solid #1e40af;
   border-radius: 50%;
   cursor: pointer;
@@ -165,6 +168,7 @@ body {
   border-radius: 7px;
   text-align: center;
   background-color: black;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .contact-button {
@@ -172,7 +176,11 @@ body {
   border: none;
   padding: 10px;
   cursor: pointer;
-  transition: transform 0.3s ease;
+}
+
+.contact-container:hover {
+  background-color: white;
+  border-color: black;
 }
 
 .triangle {
@@ -180,68 +188,85 @@ body {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 10px solid #ffffff; /* Upward triangle */
+  border-bottom: 10px solid #ffffff;
   display: block;
+  transition: transform 0.5s ease, border-bottom-color 0.3s ease;
+}
+
+.triangle.active {
+  transform: rotate(180deg);
+}
+
+.contact-container:hover .triangle {
+  border-bottom-color: black;
 }
 
 /* Contact Info Panel */
 .contact-info {
-  width: 350px; /* Wider width for horizontal layout */
-  height: 120px; /* Shorter height */
+  width: 350px;
+  height: 120px;
   background-color: #fbf6f6;
   border-radius: 15px;
   box-shadow: 0 12px 35px rgba(16, 39, 112, 0.15);
   padding: 8px;
   position: absolute;
-  bottom: 50px; /* Position above the button */
-  right: -5px; /* Adjusted to make sure the panel is placed properly */
+  bottom: 50px;
+  right: -5px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-20px); /* Start off above the screen */
-  transition: opacity 0.5s ease, transform 0.5s ease; /* Animate opacity and transform */
-  text-align: center; /* Center the text */
-  color: #000000; /* Black text */
+  transform: translateY(20px); /* Estado inicial: 20px abajo */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Transición para subir y bajar */
+  text-align: center;
+  color: #000000;
 }
 
 .contact-info.open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0); /* Move down to its normal position */
+  transform: translateY(0); /* Estado abierto: posición normal */
 }
 
-.contact-button.active .triangle {
-  transform: rotate(180deg); /* Make the triangle point down */
-}
-
-/* Glowing Text */
 .contact-info p {
   font-size: 18px;
   font-weight: bold;
   color: #000000;
   text-shadow: 0 0 10px rgb(0, 0, 0),
-               0 0 20px rgba(0, 0, 0, 0.8),
-               0 0 30px rgba(0, 0, 0, 0.6); /* Glow effect */
+    0 0 20px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(0, 0, 0, 0.6);
 }
 
+.linkedin-logo {
+  display: block;
+  margin: 10px auto 0; 
+  width: 40px; 
+  height: auto; 
+  transition: transform 0.3s ease; 
+}
+
+.linkedin-logo:hover {
+  transform: scale(1.1); 
+}
 /* Contenedor del menucito */
-.dwarf-orbits-checkbox-container {
+.checkbox-container {
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Espacio entre las opciones */
+  gap: 10px;
 }
 
 /* Estilo común para las etiquetas */
 .dwarf-orbits-label,
-.planet-names-label {
+.planet-names-label,
+.antialias-label {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #ffffff;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Efecto glow */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  /* Efecto glow */
   background: rgba(30, 58, 138, 0.3);
   padding: 5px 10px;
   border-radius: 5px;
@@ -251,13 +276,15 @@ body {
 }
 
 .dwarf-orbits-label:hover,
-.planet-names-label:hover {
+.planet-names-label:hover,
+.antialias-label:hover {
   background: rgba(30, 58, 138, 0.6);
 }
 
 /* Estilo común para las checkboxes */
 .dwarf-orbits-label input[type="checkbox"],
-.planet-names-label input[type="checkbox"] {
+.planet-names-label input[type="checkbox"],
+.antialias-label input[type="checkbox"] {
   appearance: none;
   width: 16px;
   height: 16px;
@@ -269,12 +296,14 @@ body {
 }
 
 .dwarf-orbits-label input[type="checkbox"]:checked,
-.planet-names-label input[type="checkbox"]:checked {
+.planet-names-label input[type="checkbox"]:checked,
+.antialias-label input[type="checkbox"]:checked {
   background: #60a5fa;
 }
 
 .dwarf-orbits-label input[type="checkbox"]:checked::after,
-.planet-names-label input[type="checkbox"]:checked::after {
+.planet-names-label input[type="checkbox"]:checked::after,
+.antialias-label input[type="checkbox"]:checked::after {
   content: "✔";
   position: absolute;
   top: 50%;
@@ -288,8 +317,8 @@ body {
 .planet-name {
   position: absolute;
   color: #ffffff;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6); /* Efecto glow */
-  transform: translate(-50%, -50%); /* Centrar el texto sobre el planeta */
-  pointer-events: none; /* Evitar que interfiera con clics */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
   z-index: 50;
 }

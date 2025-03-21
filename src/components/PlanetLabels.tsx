@@ -75,7 +75,7 @@ export function PlanetLabels({
       ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
 
       const texture = new THREE.CanvasTexture(canvas);
-      const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
       const sprite = new THREE.Sprite(material);
 
       sprite.position.copy(planet.mesh.position);
@@ -89,19 +89,19 @@ export function PlanetLabels({
       spriteElements.forEach(({ planet, sprite }) => {
         const isDwarf = dwarfPlanets.includes(planet.name);
         const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
-
+    
         sprite.visible = shouldShow;
-
+    
         if (shouldShow) {
           const offsetY = followedPlanet 
             ? getMinZoom(followedPlanet) 
             : getMinZoom(planet.name) * 1.5;
           sprite.position.copy(planet.mesh.position);
           sprite.position.y += offsetY;
-
+    
           const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = distance * 0.005;
-          sprite.scale.set(scaleFactor * 100, scaleFactor * 25, 1);
+          const scaleFactor = Math.max(5, distance * 0.006); // Evita escalas muy pequeñas
+          sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5); 
         }
       });
     };

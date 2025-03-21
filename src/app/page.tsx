@@ -41,6 +41,7 @@ export default function Home() {
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
   const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
+  const [antialias, setAntialias] = useState(false);
 
   const planetNames: { [key: string]: string } = {
     Mercury: "Mercurio", Venus: "Venus", Earth: "Tierra", Mars: "Marte",
@@ -76,6 +77,7 @@ export default function Home() {
           rotationRef={rotationRef}
           setFollowedPlanet={setFollowedPlanet}
           showDwarfOrbits={showDwarfOrbits}
+          antialias={antialias}
         />
         <CameraControls
           cameraRef={cameraRef}
@@ -133,14 +135,23 @@ export default function Home() {
           <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
             <span className={`triangle ${contactOpen ? "active" : ""}`} />
           </button>
-          {contactOpen && (
-            <div className="contact-info open">
-              <p> by Marcos Constantino</p>
-              <p> • contact me at: </p>
-            </div>
-          )}
+          <div className={`contact-info ${contactOpen ? "open" : ""}`}>
+            <p>by Marcos Constantino</p>
+            <p>• contact me at:</p>
+            <a href="https://www.linkedin.com/in/marquitosconstantino/" target="_blank" rel="noopener noreferrer">
+              <img src="/linkedin.png" alt="LinkedIn" className="linkedin-logo" />
+            </a>
+          </div>
         </div>
-        <div className="dwarf-orbits-checkbox-container">
+        <div className="checkbox-container">
+          {/* <label className="antialias-label">
+            <input
+              type="checkbox"
+              checked={antialias}
+              onChange={(e) => setAntialias(e.target.checked)}
+            />
+              DEV Antialias
+          </label> */}
           <label className="dwarf-orbits-label">
             <input
               type="checkbox"
