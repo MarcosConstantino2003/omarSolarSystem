@@ -116,7 +116,7 @@ export function SolarSystemScene({
     scene.add(sun);
     sunRef.current = sun;
 
-    const ambientLight = new THREE.AmbientLight(0x404040, 1.7);
+    const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
 
     const textTexture = createTextTexture("easter egg decirle a omar");
