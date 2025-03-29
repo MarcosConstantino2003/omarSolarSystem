@@ -57,6 +57,10 @@ export function SolarSystemScene({
   showDwarfOrbits,
   antialias,
   setIsLoading,
+  zoomDistanceRef,
+  getMinZoom,        // Añadido como prop
+  MAX_ZOOM,          // Añadido como prop
+  followedPlanet,    // Añadido como prop
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.MutableRefObject<THREE.Scene | null>;
@@ -65,10 +69,14 @@ export function SolarSystemScene({
   planetsRef: React.MutableRefObject<Planet[]>;
   sunRef: React.MutableRefObject<THREE.Object3D | null>;
   rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>;
+  zoomDistanceRef: React.MutableRefObject<number>; 
   setFollowedPlanet: (planet: string | null) => void;
   showDwarfOrbits: boolean;
   antialias: boolean;
   setIsLoading: (loading: boolean) => void;
+  getMinZoom: (planetName: string | null) => number; // Tipo añadido
+  MAX_ZOOM: number;                                  // Tipo añadido
+  followedPlanet: string | null;                     // Tipo añadido
 }) {
   const createTextTexture = (text: string) => {
     const canvas = document.createElement("canvas");
@@ -88,15 +96,15 @@ export function SolarSystemScene({
 
   useEffect(() => {
     if (!canvasRef || !canvasRef.current) return;
-  
+
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
-  
+
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
-  
+
     const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -106,28 +114,23 @@ export function SolarSystemScene({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
     canvasRef.current.appendChild(renderer.domElement);
-  
-    // Sol
+
     const sun = Sun();
     scene.add(sun);
     sunRef.current = sun;
-  
-    // Luz global
+
     const ambientLight = new THREE.AmbientLight(0x404040, 1.7);
     scene.add(ambientLight);
-  
-    // Cubo
+
     const textTexture = createTextTexture("easter egg decirle a omar");
     const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
     const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
     testCube.position.set(0, 0, 0);
     scene.add(testCube);
-  
-    // Estrellas
+
     const stars = Stars();
     scene.add(stars);
-  
-    // Planetas
+
     const planets: Planet[] = [
       { name: "Mercury", radius: 1800, angle: 19, speed: 0.004, mesh: Mercury() },
       { name: "Venus", radius: 2300, angle: 16, speed: 0.0035, mesh: Venus() },
@@ -143,50 +146,40 @@ export function SolarSystemScene({
       { name: "Haumea", radius: 12000, angle: 2, speed: 0.0002, mesh: Haumea() },
       { name: "Makemake", radius: 12300, angle: 16, speed: 0.0002, mesh: Makemake() },
     ];
-  
-    // Órbitas
+
     planets.forEach(({ mesh, name }) => {
       scene.add(mesh);
-  
-      // Parámetros de la elipse
       const { a, e } = planetEllipses[name];
-      const b = a * Math.sqrt(1 - e * e); // Semieje menor
+      const b = a * Math.sqrt(1 - e * e);
       const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[name]);
-  
-      // Generar puntos de la elipse en el plano XZ
       const points: THREE.Vector3[] = [];
       for (let i = 0; i <= 100; i++) {
         const theta = (i / 100) * 2 * Math.PI;
-        const x = a * Math.cos(theta); // Coordenada X
-        const zBase = b * Math.sin(theta); // Coordenada Z antes de inclinación
-        const y = zBase * Math.sin(inclinacion); // Coordenada Y ajustada por inclinación
-        const z = zBase * Math.cos(inclinacion); // Coordenada Z ajustada por inclinación
+        const x = a * Math.cos(theta);
+        const zBase = b * Math.sin(theta);
+        const y = zBase * Math.sin(inclinacion);
+        const z = zBase * Math.cos(inclinacion);
         points.push(new THREE.Vector3(x, y, z));
       }
-  
-      // Crear geometría y línea para la órbita
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       const material = new THREE.LineBasicMaterial({ color: 0xffffff });
       const orbit = new THREE.Line(geometry, material);
-  
-      // Mostrar u ocultar órbitas de planetas enanos según el estado
       orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
       orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) };
       scene.add(orbit);
     });
     planetsRef.current = planets;
-  
-    // Eventos de mouse y táctiles
+
     let isDragging = false;
     let previousX = 0, previousY = 0;
-  
-    // Mouse
+    let previousTouchDistance = 0;
+
     const onMouseDown = (event: MouseEvent) => {
       isDragging = true;
       previousX = event.clientX;
       previousY = event.clientY;
     };
-  
+
     const onMouseMove = (event: MouseEvent) => {
       if (!isDragging) return;
       const deltaX = event.clientX - previousX;
@@ -197,36 +190,55 @@ export function SolarSystemScene({
       previousX = event.clientX;
       previousY = event.clientY;
     };
-  
+
     const onMouseUp = () => {
       isDragging = false;
     };
-  
-    // Táctil
+
     const onTouchStart = (event: TouchEvent) => {
-      if (event.touches.length === 1) { // Solo un dedo
+      if (event.touches.length === 1) {
         isDragging = true;
         previousX = event.touches[0].clientX;
         previousY = event.touches[0].clientY;
+      } else if (event.touches.length === 2) {
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        previousTouchDistance = Math.sqrt(dx * dx + dy * dy);
+        isDragging = true;
       }
     };
-  
+
     const onTouchMove = (event: TouchEvent) => {
-      if (!isDragging || event.touches.length !== 1) return;
-      const deltaX = event.touches[0].clientX - previousX;
-      const deltaY = event.touches[0].clientY - previousY;
-      rotationRef.current.x -= deltaX * 0.002;
-      rotationRef.current.y += deltaY * 0.002;
-      rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
-      previousX = event.touches[0].clientX;
-      previousY = event.touches[0].clientY;
-      event.preventDefault(); // Evitar scroll de la página
+      if (!isDragging) return;
+      event.preventDefault();
+
+      if (event.touches.length === 1) { // Rotación
+        const deltaX = event.touches[0].clientX - previousX;
+        const deltaY = event.touches[0].clientY - previousY;
+        rotationRef.current.x -= deltaX * 0.004; // Mayor sensibilidad táctil
+        rotationRef.current.y += deltaY * 0.004;
+        rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
+        previousX = event.touches[0].clientX;
+        previousY = event.touches[0].clientY;
+      } else if (event.touches.length === 2) { // Zoom
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        const currentTouchDistance = Math.sqrt(dx * dx + dy * dy);
+        const deltaDistance = currentTouchDistance - previousTouchDistance;
+
+        const minZoom = getMinZoom(planetsRef.current.find(p => p.name === setFollowedPlanet.arguments?.[0])?.name || null);
+        const zoomSpeed = zoomDistanceRef.current * 0.001;
+        zoomDistanceRef.current -= deltaDistance * zoomSpeed * 10; // Sensibilidad ajustada
+        zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
+        previousTouchDistance = currentTouchDistance;
+      }
     };
-  
+
     const onTouchEnd = () => {
       isDragging = false;
+      previousTouchDistance = 0;
     };
-  
+
     const onClick = (event: MouseEvent) => {
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -244,7 +256,7 @@ export function SolarSystemScene({
       const intersectsSun = raycaster.intersectObject(sun);
       if (intersectsSun.length > 0) setFollowedPlanet(null);
     };
-  
+
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
@@ -252,53 +264,39 @@ export function SolarSystemScene({
     window.addEventListener("touchmove", onTouchMove);
     window.addEventListener("touchend", onTouchEnd);
     window.addEventListener("click", onClick);
-  
+
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     };
     window.addEventListener("resize", handleResize);
-  
-    let hasRenderedFirstFrame = false; // Bandera para el primer frame
-  
-    // Animación planetas
+
+    let hasRenderedFirstFrame = false;
+
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach((planet) => {
-        // Incrementar el ángulo (anomalía media aproximada)
         planet.angle += planet.speed;
         if (planet.angle > 2 * Math.PI) planet.angle -= 2 * Math.PI;
-  
-        // Parámetros de la elipse
         const { a, e } = planetEllipses[planet.name];
-        const b = a * Math.sqrt(1 - e * e); // Semieje menor
-  
-        // Posición en la elipse (plano base XZ)
+        const b = a * Math.sqrt(1 - e * e);
         const x = a * Math.cos(planet.angle);
         const z = b * Math.sin(planet.angle);
-  
-        // Aplicar inclinación
         const inclinacion = THREE.MathUtils.degToRad(planetInclinaciones[planet.name]);
-        const y = z * Math.sin(inclinacion); // Ajustar Y según la inclinación
-        const zInclinado = z * Math.cos(inclinacion); // Ajustar Z según la inclinación
-  
-        // Actualizar la posición del planeta
+        const y = z * Math.sin(inclinacion);
+        const zInclinado = z * Math.cos(inclinacion);
         planet.mesh.position.set(x, y, zInclinado);
-  
-        // Rotación del planeta sobre su propio eje
         planet.mesh.rotation.y += 0.002;
       });
-  
       renderer.render(scene, camera);
-  
       if (!hasRenderedFirstFrame) {
         hasRenderedFirstFrame = true;
-        setTimeout(() => setIsLoading(false), 500); // Retraso adicional de 500ms
+        setTimeout(() => setIsLoading(false), 500);
       }
     };
     animate();
-  
+
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousedown", onMouseDown);
@@ -310,7 +308,7 @@ export function SolarSystemScene({
       window.removeEventListener("click", onClick);
       canvasRef.current?.removeChild(renderer.domElement);
     };
-  }, []); // Solo depende de showDwarfOrbits, como en tu código original
+  }, [showDwarfOrbits]);
 
   useEffect(() => {
     if (!canvasRef || !canvasRef.current) return;

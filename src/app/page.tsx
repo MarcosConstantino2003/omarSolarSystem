@@ -83,12 +83,16 @@ export default function Home() {
           cameraRef={cameraRef}
           rendererRef={rendererRef}
           planetsRef={planetsRef}
+          zoomDistanceRef={zoomDistanceRef}
           sunRef={sunRef}
           rotationRef={rotationRef}
           setFollowedPlanet={setFollowedPlanet}
           showDwarfOrbits={showDwarfOrbits}
           antialias={antialias}
           setIsLoading={setIsLoading}
+          getMinZoom={getMinZoom} 
+          MAX_ZOOM={MAX_ZOOM} 
+          followedPlanet={followedPlanet}
         />
         <CameraControls
           cameraRef={cameraRef}
