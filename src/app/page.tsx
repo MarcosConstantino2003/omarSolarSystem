@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react"; // Added useEffect
 import * as THREE from "three";
 import Head from "next/head";
 import { SolarSystemScene } from "../components/SolarSystemScene";
@@ -30,8 +30,8 @@ const getMinZoom = (planetName: string | null) => {
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const canvasRef = useRef<HTMLDivElement>(null!);;
-  const sliderRef = useRef<HTMLInputElement>(null!);;
+  const canvasRef = useRef<HTMLDivElement>(null!);
+  const sliderRef = useRef<HTMLInputElement>(null!);
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -52,14 +52,61 @@ export default function Home() {
     Makemake: "Makemake", Sun: "Sol",
   };
 
-  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZoomChange = (sliderValue: number) => {
     const minZoom = getMinZoom(followedPlanet);
-    const sliderValue = Number(event.target.value);
     zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
+    if (sliderRef.current) sliderRef.current.value = String(sliderValue);
   };
 
   const [isOpen, setIsOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+
+  // Add touch event handling for the slider
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let isDraggingSlider = false;
+    let startY = 0;
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.target === slider) {
+        event.preventDefault(); // Prevent default to avoid scrolling
+        isDraggingSlider = true;
+        startY = event.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!isDraggingSlider || event.target !== slider) return;
+      event.preventDefault();
+
+      const touchY = event.touches[0].clientY;
+      const sliderRect = slider.getBoundingClientRect();
+      const sliderHeight = sliderRect.height;
+      const deltaY = startY - touchY; // Invertido porque el slider está vertical
+      const sensitivity = 100 / sliderHeight; // Normaliza el movimiento al rango 0-100
+      let newValue = Number(slider.value) + deltaY * sensitivity;
+
+      newValue = Math.max(0, Math.min(100, newValue)); // Limita al rango 0-100
+      handleZoomChange(newValue);
+      startY = touchY; // Actualiza la posición inicial para el próximo movimiento
+    };
+
+    const onTouchEnd = () => {
+      isDraggingSlider = false;
+    };
+
+    slider.addEventListener("touchstart", onTouchStart, { passive: false });
+    slider.addEventListener("touchmove", onTouchMove, { passive: false });
+    slider.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      slider.removeEventListener("touchstart", onTouchStart);
+      slider.removeEventListener("touchmove", onTouchMove);
+      slider.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [followedPlanet]); // Dependencia en followedPlanet para recalcular minZoom
 
   return (
     <>
@@ -69,7 +116,6 @@ export default function Home() {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
       </Head>
       <div className="relative w-full h-screen">
-        {/* Pantalla de carga */}
         {isLoading && (
           <div className="loading-screen">
             <div className="spinner"></div>
@@ -90,8 +136,8 @@ export default function Home() {
           showDwarfOrbits={showDwarfOrbits}
           antialias={antialias}
           setIsLoading={setIsLoading}
-          getMinZoom={getMinZoom} 
-          MAX_ZOOM={MAX_ZOOM} 
+          getMinZoom={getMinZoom}
+          MAX_ZOOM={MAX_ZOOM}
           followedPlanet={followedPlanet}
         />
         <CameraControls
@@ -141,7 +187,7 @@ export default function Home() {
           max="100"
           defaultValue="50"
           ref={sliderRef}
-          onChange={handleZoomChange}
+          onChange={(e) => handleZoomChange(Number(e.target.value))} // Mouse/tap support
           className="zoom-slider absolute bottom-4 left-4"
           style={{ writingMode: "vertical-rl" }}
         />
@@ -169,14 +215,6 @@ export default function Home() {
           </div>
         </div>
         <div className="checkbox-container">
-          {/* <label className="antialias-label">
-            <input
-              type="checkbox"
-              checked={antialias}
-              onChange={(e) => setAntialias(e.target.checked)}
-            />
-              DEV Antialias
-          </label> */}
           <label className="dwarf-orbits-label">
             <input
               type="checkbox"

@@ -94,13 +94,13 @@ export function PlanetLabels({
     
         if (shouldShow) {
           const offsetY = followedPlanet 
-            ? getMinZoom(followedPlanet) 
-            : getMinZoom(planet.name) * 1.5;
+            ? getMinZoom(followedPlanet)
+            : getMinZoom(planet.name) + 100;
           sprite.position.copy(planet.mesh.position);
           sprite.position.y += offsetY;
     
           const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = Math.max(1, distance * 0.006); // Evita escalas muy pequeñas
+          const scaleFactor = Math.max(1, distance * 0.006);
           sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5); 
         }
       });
