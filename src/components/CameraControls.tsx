@@ -47,7 +47,7 @@ export function CameraControls({
   zoomDistanceRef: React.MutableRefObject<number>;
 }) {
   useEffect(() => {
-    if (!sliderRef || !sliderRef.current) return; 
+    if (!sliderRef || !sliderRef.current) return;
     const camera = cameraRef.current;
     const sun = sunRef.current;
     const planets = planetsRef.current;
@@ -60,6 +60,10 @@ export function CameraControls({
     } else {
       zoomDistanceRef.current = Math.max(1600, Math.min(MAX_ZOOM, zoomDistanceRef.current));
     }
+
+    let isDragging = false;
+    let previousX = 0, previousY = 0;
+    let previousTouchDistance = 0;
 
     const updateCamera = () => {
       const targetPlanet = planets.find(p => p.name === followedPlanet);
@@ -95,7 +99,56 @@ export function CameraControls({
       zoomDistanceRef.current += event.deltaY * zoomSpeed;
       zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
     };
+
+    const onTouchStart = (event: TouchEvent) => {
+      event.preventDefault();
+      if (event.touches.length === 1) {
+        isDragging = true;
+        previousX = event.touches[0].clientX;
+        previousY = event.touches[0].clientY;
+      } else if (event.touches.length === 2) {
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        previousTouchDistance = Math.sqrt(dx * dx + dy * dy);
+        isDragging = true;
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!isDragging) return;
+      event.preventDefault();
+
+      if (event.touches.length === 1) { // Rotación con un dedo
+        const deltaX = event.touches[0].clientX - previousX;
+        const deltaY = event.touches[0].clientY - previousY;
+        rotationRef.current.x -= deltaX * 0.004;
+        rotationRef.current.y += deltaY * 0.004;
+        rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
+        previousX = event.touches[0].clientX;
+        previousY = event.touches[0].clientY;
+      } else if (event.touches.length === 2) { // Zoom con dos dedos
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        const currentTouchDistance = Math.sqrt(dx * dx + dy * dy);
+        const deltaDistance = previousTouchDistance - currentTouchDistance;
+
+        const minZoom = getMinZoom(followedPlanet);
+        const zoomSpeed = zoomDistanceRef.current * 0.001;
+        zoomDistanceRef.current += deltaDistance * zoomSpeed * 20;
+        zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
+        previousTouchDistance = currentTouchDistance;
+      }
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      isDragging = false;
+      previousTouchDistance = 0;
+    };
+
     window.addEventListener("wheel", onScroll);
+    window.addEventListener("touchstart", onTouchStart);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
 
     const animateCamera = () => {
       updateCamera();
@@ -105,6 +158,9 @@ export function CameraControls({
 
     return () => {
       window.removeEventListener("wheel", onScroll);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
     };
   }, [followedPlanet]);
 
