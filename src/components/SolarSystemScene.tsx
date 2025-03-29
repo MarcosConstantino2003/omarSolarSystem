@@ -55,7 +55,6 @@ export function SolarSystemScene({
   rotationRef,
   setFollowedPlanet,
   showDwarfOrbits,
-  antialias,
   setIsLoading,
   zoomDistanceRef,
   getMinZoom,        // Añadido como prop
@@ -96,15 +95,15 @@ export function SolarSystemScene({
 
   useEffect(() => {
     if (!canvasRef || !canvasRef.current) return;
-
+  
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
-
+  
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
-
+  
     const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -114,23 +113,23 @@ export function SolarSystemScene({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
     canvasRef.current.appendChild(renderer.domElement);
-
+  
     const sun = Sun();
     scene.add(sun);
     sunRef.current = sun;
-
+  
     const ambientLight = new THREE.AmbientLight(0x404040, 1.7);
     scene.add(ambientLight);
-
+  
     const textTexture = createTextTexture("easter egg decirle a omar");
     const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
     const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
     testCube.position.set(0, 0, 0);
     scene.add(testCube);
-
+  
     const stars = Stars();
     scene.add(stars);
-
+  
     const planets: Planet[] = [
       { name: "Mercury", radius: 1800, angle: 19, speed: 0.004, mesh: Mercury() },
       { name: "Venus", radius: 2300, angle: 16, speed: 0.0035, mesh: Venus() },
@@ -146,7 +145,7 @@ export function SolarSystemScene({
       { name: "Haumea", radius: 12000, angle: 2, speed: 0.0002, mesh: Haumea() },
       { name: "Makemake", radius: 12300, angle: 16, speed: 0.0002, mesh: Makemake() },
     ];
-
+  
     planets.forEach(({ mesh, name }) => {
       scene.add(mesh);
       const { a, e } = planetEllipses[name];
@@ -169,17 +168,17 @@ export function SolarSystemScene({
       scene.add(orbit);
     });
     planetsRef.current = planets;
-
+  
     let isDragging = false;
     let previousX = 0, previousY = 0;
     let previousTouchDistance = 0;
-
+  
     const onMouseDown = (event: MouseEvent) => {
       isDragging = true;
       previousX = event.clientX;
       previousY = event.clientY;
     };
-
+  
     const onMouseMove = (event: MouseEvent) => {
       if (!isDragging) return;
       const deltaX = event.clientX - previousX;
@@ -190,12 +189,13 @@ export function SolarSystemScene({
       previousX = event.clientX;
       previousY = event.clientY;
     };
-
+  
     const onMouseUp = () => {
       isDragging = false;
     };
-
+  
     const onTouchStart = (event: TouchEvent) => {
+      event.preventDefault(); // Mover aquí para evitar scroll desde el inicio
       if (event.touches.length === 1) {
         isDragging = true;
         previousX = event.touches[0].clientX;
@@ -207,12 +207,12 @@ export function SolarSystemScene({
         isDragging = true;
       }
     };
-
+  
     const onTouchMove = (event: TouchEvent) => {
       if (!isDragging) return;
       event.preventDefault();
-
-      if (event.touches.length === 1) { // Rotación
+  
+      if (event.touches.length === 1) { // Rotación con un dedo
         const deltaX = event.touches[0].clientX - previousX;
         const deltaY = event.touches[0].clientY - previousY;
         rotationRef.current.x -= deltaX * 0.004; // Mayor sensibilidad táctil
@@ -220,25 +220,25 @@ export function SolarSystemScene({
         rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
         previousX = event.touches[0].clientX;
         previousY = event.touches[0].clientY;
-      } else if (event.touches.length === 2) { // Zoom
+      } else if (event.touches.length === 2) { // Zoom con dos dedos
         const dx = event.touches[0].clientX - event.touches[1].clientX;
         const dy = event.touches[0].clientY - event.touches[1].clientY;
         const currentTouchDistance = Math.sqrt(dx * dx + dy * dy);
-        const deltaDistance = currentTouchDistance - previousTouchDistance;
-
-        const minZoom = getMinZoom(planetsRef.current.find(p => p.name === setFollowedPlanet.arguments?.[0])?.name || null);
+        const deltaDistance = previousTouchDistance - currentTouchDistance; // Invertimos para que sea intuitivo
+  
+        const minZoom = getMinZoom(followedPlanet);
         const zoomSpeed = zoomDistanceRef.current * 0.001;
-        zoomDistanceRef.current -= deltaDistance * zoomSpeed * 10; // Sensibilidad ajustada
+        zoomDistanceRef.current += deltaDistance * zoomSpeed * 20; // Ajustamos sensibilidad
         zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
         previousTouchDistance = currentTouchDistance;
       }
     };
-
-    const onTouchEnd = () => {
+  
+    const onTouchEnd = (event: TouchEvent) => {
       isDragging = false;
       previousTouchDistance = 0;
     };
-
+  
     const onClick = (event: MouseEvent) => {
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -256,24 +256,25 @@ export function SolarSystemScene({
       const intersectsSun = raycaster.intersectObject(sun);
       if (intersectsSun.length > 0) setFollowedPlanet(null);
     };
-
+  
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("touchstart", onTouchStart);
-    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("touchmove", onTouchMove, { passive: false }); // passive: false para preventDefault
     window.addEventListener("touchend", onTouchEnd);
+  
     window.addEventListener("click", onClick);
-
+  
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     };
     window.addEventListener("resize", handleResize);
-
+  
     let hasRenderedFirstFrame = false;
-
+  
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach((planet) => {
@@ -296,7 +297,7 @@ export function SolarSystemScene({
       }
     };
     animate();
-
+  
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousedown", onMouseDown);
@@ -308,33 +309,6 @@ export function SolarSystemScene({
       window.removeEventListener("click", onClick);
       canvasRef.current?.removeChild(renderer.domElement);
     };
-  }, [showDwarfOrbits]);
-
-  useEffect(() => {
-    if (!canvasRef || !canvasRef.current) return;
-
-    // Crear un WebGLRenderer con antialias para suavizar bordes
-    const renderer = new THREE.WebGLRenderer({ antialias: antialias });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    if (antialias) {
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFShadowMap;
-      renderer.setClearColor(0x000000, 1.0);
-    } else {
-      // Configuración de baja calidad
-      renderer.shadowMap.enabled = false;
-    }
-
-    canvasRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    return () => {
-      if (rendererRef.current && canvasRef.current) {
-        canvasRef.current.removeChild(rendererRef.current.domElement);
-        rendererRef.current.dispose(); // Liberar recursos (si dispose existe)
-      }
-    };
-  }, [antialias]);
+  }, []); // Añadimos followedPlanet como dependencia
   return null;
 }
