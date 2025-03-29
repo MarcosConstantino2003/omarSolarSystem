@@ -159,18 +159,31 @@ export default function Home() {
           planetNames={planetNames}
         />
         <div className="planet-dropdown-container">
-          <button className="planet-dropdown-button" onClick={() => setIsOpen(!isOpen)}>
+          <button
+            className="planet-dropdown-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(!isOpen);
+            }}
+          >
             {followedPlanet ? planetNames[followedPlanet] : planetNames["Sun"]}
           </button>
           {isOpen && (
             <ul className="planet-dropdown-list">
-              <li onClick={() => { setFollowedPlanet(null); setIsOpen(false); }}>
+              <li
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFollowedPlanet(null);
+                  setIsOpen(false);
+                }}
+              >
                 {planetNames["Sun"]}
               </li>
               {["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Eris", "Ceres", "Haumea", "Makemake"].map((planet) => (
                 <li
                   key={planet}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setFollowedPlanet(planet);
                     setIsOpen(false);
                   }}
@@ -187,13 +200,22 @@ export default function Home() {
           max="100"
           defaultValue="50"
           ref={sliderRef}
-          onChange={(e) => handleZoomChange(Number(e.target.value))} // Mouse/tap support
+          onChange={(e) => {
+            e.stopPropagation(); // Prevent slider change from reaching canvas
+            handleZoomChange(Number(e.target.value));
+          }}
           className="zoom-slider absolute bottom-4 left-4"
           style={{ writingMode: "vertical-rl" }}
         />
         <div ref={canvasRef} className="w-full h-full" />
         <div className="contact-container">
-          <button className="contact-button" onClick={() => setContactOpen(!contactOpen)}>
+          <button
+            className="contact-button"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent contact button click from reaching canvas
+              setContactOpen(!contactOpen);
+            }}
+          >
             <span className={`triangle ${contactOpen ? "active" : ""}`} />
           </button>
           <div className={`contact-info ${contactOpen ? "open" : ""}`}>
@@ -204,6 +226,7 @@ export default function Home() {
                 href="https://www.linkedin.com/in/marquitosconstantino/"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()} // Prevent link click from reaching canvas
               >
                 <img
                   src="/linkedin.png"
@@ -220,6 +243,7 @@ export default function Home() {
               type="checkbox"
               checked={showDwarfOrbits}
               onChange={(e) => {
+                e.stopPropagation();
                 setShowDwarfOrbits(e.target.checked);
                 const scene = sceneRef.current;
                 if (scene) {
@@ -231,15 +255,18 @@ export default function Home() {
                 }
               }}
             />
-            Órbitas de enanos
+            <div onClick={(e) => e.stopPropagation()}>Órbitas de enanos</div>
           </label>
           <label className="planet-names-label">
             <input
               type="checkbox"
               checked={showPlanetNames}
-              onChange={(e) => setShowPlanetNames(e.target.checked)}
+              onChange={(e) => {
+                e.stopPropagation();
+                setShowPlanetNames(e.target.checked);
+              }}
             />
-            Nombres de planetas
+            <div onClick={(e) => e.stopPropagation()}>Nombres de planetas</div>
           </label>
         </div>
       </div>
