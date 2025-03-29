@@ -384,3 +384,139 @@ body {
   pointer-events: none;
   z-index: 50;
 }
+
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+  /* Loading Screen */
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border-width: 3px;
+    margin-bottom: 15px;
+  }
+
+  .loading-screen p.main-text {
+    font-size: 18px;
+    text-shadow: 
+      0 0 8px rgba(255, 255, 255, 0.8),
+      0 0 15px rgba(255, 255, 255, 0.6);
+  }
+
+  .loading-screen p.footer-text {
+    font-size: 14px;
+    bottom: 15px;
+    text-shadow: 
+      0 0 8px rgba(255, 255, 255, 0.8),
+      0 0 15px rgba(255, 255, 255, 0.6);
+  }
+
+  /* Planet Dropdown */
+  .planet-dropdown-container {
+    top: 10px;
+    left: 10px;
+  }
+
+  .planet-dropdown-button {
+    padding: 3px;
+    font-size: 12px;
+    width: 120px;
+    border-radius: 8px;
+  }
+
+  .planet-dropdown-list {
+    top: 35px;
+    width: 120px;
+    padding: 2px;
+  }
+
+  .planet-dropdown-list li {
+    padding: 4px;
+    font-size: 12px;
+  }
+
+  /* Zoom Slider */
+  .zoom-slider {
+    height: 5rem;
+    width: 1rem;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .zoom-slider::-webkit-slider-thumb {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .zoom-slider::-moz-range-thumb {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  /* Contact Info */
+  .contact-container {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .contact-button {
+    padding: 5px;
+  }
+
+  .triangle {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 8px solid #ffffff;
+  }
+
+  .contact-info {
+    width: 200px;
+    height: 80px;
+    bottom: 35px;
+    right: -5px;
+    padding: 5px;
+    border-radius: 10px;
+  }
+
+  .contact-info p {
+    font-size: 12px;
+  }
+
+  .linkedin-logo {
+    width: 30px;
+    margin: 5px auto 0;
+  }
+
+  /* Checkbox Container */
+  .checkbox-container {
+    top: 5px;
+    right: 5px;
+    gap: 5px;
+  }
+
+  .dwarf-orbits-label,
+  .planet-names-label,
+  .antialias-label {
+    padding: 3px 6px;
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  .dwarf-orbits-label input[type="checkbox"],
+  .planet-names-label input[type="checkbox"],
+  .antialias-label input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dwarf-orbits-label input[type="checkbox"]:checked::after,
+  .planet-names-label input[type="checkbox"]:checked::after,
+  .antialias-label input[type="checkbox"]:checked::after {
+    font-size: 10px;
+  }
+
+  /* Planet Names */
+  .planet-name {
+    font-size: 12px;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+  }
+}
