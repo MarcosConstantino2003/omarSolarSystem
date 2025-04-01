@@ -110,27 +110,26 @@ export function SolarSystemScene({
 
     planets.forEach(({ mesh, name, a, e, inclination }) => {
       scene.add(mesh);
-    
+
       const b = a * Math.sqrt(1 - e * e);
       const inclinacionRad = THREE.MathUtils.degToRad(inclination);
-    
-      // Aumentar la precisión de la órbita a 10,000 puntos
-      const points: THREE.Vector3[] = Array.from({ length: 10000 }, (_, i) => {
-        const theta = (i / 9999) * 2 * Math.PI; // 9999 en vez de 10000 para evitar superposición
+
+      // Precalcular puntos de la órbita
+      const points: THREE.Vector3[] = Array.from({ length: 1440 }, (_, i) => {
+        const theta = (i / 1439) * 2 * Math.PI; // 1439 en vez de 1440 para evitar superposición
         const x = a * Math.cos(theta);
         const zBase = b * Math.sin(theta);
         return new THREE.Vector3(x, zBase * Math.sin(inclinacionRad), zBase * Math.cos(inclinacionRad));
       });
-    
       // Crear la órbita visual
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       const material = new THREE.LineBasicMaterial({ color: 0xffffff });
       const orbit = new THREE.Line(geometry, material);
-    
+
       orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
       orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) };
       scene.add(orbit);
-    
+
       // Almacenar los puntos en el planeta
       const planet = planets.find(p => p.name === name)!;
       planet.orbitPoints = points;

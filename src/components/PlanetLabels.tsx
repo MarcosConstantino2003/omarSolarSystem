@@ -16,11 +16,11 @@ interface Planet {
 
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 40;
-    case "Venus": case "Earth": return 140;
-    case "Mars": return 80;
-    case "Uranus": case "Neptune": return 640;
-    case "Jupiter": case "Saturn": return 940;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5; 
+    case "Venus": case "Earth": return 35;
+    case "Mars": return 20; 
+    case "Uranus": case "Neptune": return 160; 
+    case "Jupiter": case "Saturn": return 230; 
     default: return 3400;
   }
 };
@@ -33,8 +33,8 @@ export function PlanetLabels({
   showDwarfOrbits,
   followedPlanet,
   planetNames,
-  setFollowedPlanet,
-  updateSpritesRef,
+  setFollowedPlanet, // Añadido para manejar clics
+  updateSpritesRef, // Referencia para pasar la función al SolarSystemScene
 }: {
   sceneRef: React.RefObject<THREE.Scene | null>;
   cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
@@ -92,44 +92,37 @@ export function PlanetLabels({
       scene.add(sprite);
     });
 
-    const DISTANCE_THRESHOLD = 30000000; // Umbral de distancia para ocultar etiquetas (ajustable)
-
     const updateSprites = () => {
       spriteElements.forEach(({ planet, sprite }) => {
         const isDwarf = dwarfPlanets.includes(planet.name);
         const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
 
-        // Calcular la distancia entre la cámara y el planeta
-        const distanceToCamera = camera.position.distanceTo(planet.mesh.position);
+        sprite.visible = shouldShow;
 
-        // Ocultar si está demasiado lejos, incluso si shouldShow es true
-        sprite.visible = shouldShow && distanceToCamera < DISTANCE_THRESHOLD;
-
-        if (sprite.visible) {
+        if (shouldShow) {
           let offsetY: number;
 
           if (followedPlanet) {
             if (planet.name === followedPlanet) {
-              offsetY = getMinZoom(planet.name) * 1.5;
+              offsetY = getMinZoom(planet.name) * 1.1 + 8;
             } else {
-              offsetY = getMinZoom(planet.name) * 5;
+              offsetY = getMinZoom(planet.name) + 130; 
             }
           } else {
             offsetY = getMinZoom(planet.name) + 200;
           }
 
-          const targetPosition = planet.mesh.position.clone();
+          const targetPosition = sprite.position.copy(planet.mesh.position);
           targetPosition.y += offsetY;
-
-          sprite.position.lerp(targetPosition, 0.1);
-
+          sprite.position.lerp(targetPosition, 0.6); // 0.1 es la velocidad de suavizado
           const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = Math.max(1, distance * 0.006);
+          const scaleFactor = Math.max(5, distance * 0.006);
           sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5);
         }
       });
     };
 
+    // Pasar la función updateSprites al ref para usarla en SolarSystemScene
     updateSpritesRef.current = updateSprites;
 
     const onClick = (event: MouseEvent) => {
@@ -155,7 +148,7 @@ export function PlanetLabels({
       spriteElements.forEach(({ sprite }) => sprite.material.map?.dispose());
       spriteElements.forEach(({ sprite }) => sprite.material.dispose());
       window.removeEventListener("click", onClick);
-      updateSpritesRef.current = null;
+      updateSpritesRef.current = null; // Limpiar la referencia
     };
   }, [showPlanetNames, showDwarfOrbits, followedPlanet, planetNames, setFollowedPlanet]);
 
