@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface Planet {
@@ -8,19 +8,20 @@ interface Planet {
   angle: number;
   speed: number;
   mesh: THREE.Object3D;
-  inclination: number; 
-  a: number; 
-  e: number; 
+  inclination: number;
+  a: number;
+  e: number;
+  orbitPoints: THREE.Vector3[];
 }
 
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
-    case "Venus": case "Earth": return 70;
-    case "Mars": return 40;
-    case "Uranus": case "Neptune": return 320;
-    case "Jupiter": case "Saturn": return 470;
-    default: return 1700;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5; 
+    case "Venus": case "Earth": return 35;
+    case "Mars": return 20; 
+    case "Uranus": case "Neptune": return 160; 
+    case "Jupiter": case "Saturn": return 230; 
+    default: return 3400;
   }
 };
 
@@ -32,6 +33,8 @@ export function PlanetLabels({
   showDwarfOrbits,
   followedPlanet,
   planetNames,
+  setFollowedPlanet, // Añadido para manejar clics
+  updateSpritesRef, // Referencia para pasar la función al SolarSystemScene
 }: {
   sceneRef: React.RefObject<THREE.Scene | null>;
   cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
@@ -40,6 +43,8 @@ export function PlanetLabels({
   showDwarfOrbits: boolean;
   followedPlanet: string | null;
   planetNames: { [key: string]: string };
+  setFollowedPlanet: (planet: string | null) => void;
+  updateSpritesRef: React.RefObject<(() => void) | null>;
 }) {
   useEffect(() => {
     const scene = sceneRef.current;
@@ -91,35 +96,62 @@ export function PlanetLabels({
       spriteElements.forEach(({ planet, sprite }) => {
         const isDwarf = dwarfPlanets.includes(planet.name);
         const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
-    
+
         sprite.visible = shouldShow;
-    
+
         if (shouldShow) {
-          const offsetY = followedPlanet 
-            ? getMinZoom(followedPlanet)
-            : getMinZoom(planet.name) + 100;
+          let offsetY: number;
+
+          if (followedPlanet) {
+            if (planet.name === followedPlanet) {
+              offsetY = getMinZoom(planet.name) * 1.1 + 5;
+            } else {
+              offsetY = getMinZoom(planet.name) + 130; 
+            }
+          } else {
+            // Sin planeta seguido: zoom moderado
+            offsetY = getMinZoom(planet.name) + 200;
+          }
+
           sprite.position.copy(planet.mesh.position);
           sprite.position.y += offsetY;
-    
+
           const distance = camera.position.distanceTo(sprite.position);
           const scaleFactor = Math.max(1, distance * 0.006);
-          sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5); 
+          sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5);
         }
       });
     };
 
-    const animateSprites = () => {
-      updateSprites();
-      requestAnimationFrame(animateSprites);
+    // Pasar la función updateSprites al ref para usarla en SolarSystemScene
+    updateSpritesRef.current = updateSprites;
+
+    const onClick = (event: MouseEvent) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(spriteElements.map(se => se.sprite));
+      if (intersects.length > 0) {
+        const clickedSprite = intersects[0].object as THREE.Sprite;
+        const planetName = clickedSprite.userData.planetName;
+        setFollowedPlanet(planetName);
+      }
     };
-    animateSprites();
+
+    window.addEventListener("click", onClick);
 
     return () => {
       spriteElements.forEach(({ sprite }) => scene.remove(sprite));
       spriteElements.forEach(({ sprite }) => sprite.material.map?.dispose());
       spriteElements.forEach(({ sprite }) => sprite.material.dispose());
+      window.removeEventListener("click", onClick);
+      updateSpritesRef.current = null; // Limpiar la referencia
     };
-  }, [showPlanetNames, showDwarfOrbits, followedPlanet]);
+  }, [showPlanetNames, showDwarfOrbits, followedPlanet, planetNames, setFollowedPlanet]);
 
   return null;
 }

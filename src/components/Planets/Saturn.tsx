@@ -5,7 +5,7 @@ export const Saturn = () => {
 
   // 🌑 Saturno: planeta
   const saturnTexture = textureLoader.load("/textures/saturn.jpg");
-  const saturnGeometry = new THREE.SphereGeometry(280, 64, 64); // Más detalle
+  const saturnGeometry = new THREE.SphereGeometry(167); // Más detalle
   const saturnMaterial = new THREE.MeshPhongMaterial({
     map: saturnTexture,
     shininess: 5,

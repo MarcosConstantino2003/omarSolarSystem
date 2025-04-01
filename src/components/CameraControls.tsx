@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface Planet {
@@ -8,20 +8,21 @@ interface Planet {
   angle: number;
   speed: number;
   mesh: THREE.Object3D;
-  inclination: number; 
-  a: number; 
-  e: number; 
+  inclination: number;
+  a: number;
+  e: number;
+  orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 20000;
+const MAX_ZOOM = 40000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
-    case "Venus": case "Earth": return 70;
-    case "Mars": return 40;
-    case "Uranus": case "Neptune": return 320;
-    case "Jupiter": case "Saturn": return 470;
-    default: return 1700;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5;
+    case "Venus": case "Earth": return 35;
+    case "Mars": return 20;
+    case "Uranus": case "Neptune": return 250;
+    case "Jupiter": case "Saturn": return 400;
+    default: return 3400;
   }
 };
 
@@ -39,14 +40,16 @@ export function CameraControls({
   followedPlanet,
   rotationRef,
   zoomDistanceRef,
+  updateCameraRef, // Nueva prop para sincronizar con SolarSystemScene
 }: {
-  cameraRef: React.MutableRefObject<THREE.PerspectiveCamera | null>;
-  sunRef: React.MutableRefObject<THREE.Object3D | null>;
-  planetsRef: React.MutableRefObject<Planet[]>;
+  cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
+  sunRef: React.RefObject<THREE.Object3D | null>;
+  planetsRef: React.RefObject<Planet[]>;
   sliderRef: React.RefObject<HTMLInputElement> | null;
   followedPlanet: string | null;
-  rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>;
-  zoomDistanceRef: React.MutableRefObject<number>;
+  rotationRef: React.RefObject<{ x: number; y: number; z: number }>;
+  zoomDistanceRef: React.RefObject<number>;
+  updateCameraRef: React.MutableRefObject<(() => void) | null>;
 }) {
   useEffect(() => {
     if (!sliderRef || !sliderRef.current) return;
@@ -56,11 +59,12 @@ export function CameraControls({
     const slider = sliderRef.current;
     if (!camera || !sun) return;
 
+    // Ajustar zoom inicial según followedPlanet
     if (followedPlanet) {
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
     } else {
-      zoomDistanceRef.current = Math.max(1600, Math.min(MAX_ZOOM, zoomDistanceRef.current));
+      zoomDistanceRef.current = 3400; // Reestablecer a 3400 cuando se sigue al Sol
     }
 
     let isDragging = false;
@@ -95,6 +99,9 @@ export function CameraControls({
       if (slider) slider.value = String(100 * (1 - (zoomDistance - minZoom) / (MAX_ZOOM - minZoom)));
     };
 
+    // Pasar updateCamera al ref para que se use en SolarSystemScene
+    updateCameraRef.current = updateCamera;
+
     const onScroll = (event: WheelEvent) => {
       const minZoom = getMinZoom(followedPlanet);
       const zoomSpeed = zoomDistanceRef.current * 0.001;
@@ -120,7 +127,7 @@ export function CameraControls({
       if (!isDragging) return;
       event.preventDefault();
 
-      if (event.touches.length === 1) { // Rotación con un dedo
+      if (event.touches.length === 1) {
         const deltaX = event.touches[0].clientX - previousX;
         const deltaY = event.touches[0].clientY - previousY;
         rotationRef.current.x -= deltaX * 0.004;
@@ -128,7 +135,7 @@ export function CameraControls({
         rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
         previousX = event.touches[0].clientX;
         previousY = event.touches[0].clientY;
-      } else if (event.touches.length === 2) { // Zoom con dos dedos
+      } else if (event.touches.length === 2) {
         const dx = event.touches[0].clientX - event.touches[1].clientX;
         const dy = event.touches[0].clientY - event.touches[1].clientY;
         const currentTouchDistance = Math.sqrt(dx * dx + dy * dy);
@@ -152,17 +159,12 @@ export function CameraControls({
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd);
 
-    const animateCamera = () => {
-      updateCamera();
-      requestAnimationFrame(animateCamera);
-    };
-    animateCamera();
-
     return () => {
       window.removeEventListener("wheel", onScroll);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
+      updateCameraRef.current = null; // Limpiar la referencia
     };
   }, [followedPlanet]);
 

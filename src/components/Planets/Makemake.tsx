@@ -4,7 +4,7 @@ export const Makemake = () => {
   const textureLoader = new THREE.TextureLoader();
   const makemakeTexture = textureLoader.load("/textures/makemake.jpg");
 
-  const makemakeGeometry = new THREE.SphereGeometry(7, 32, 32); 
+  const makemakeGeometry = new THREE.SphereGeometry(2); 
   const makemakeMaterial = new THREE.MeshPhongMaterial({
     map: makemakeTexture,
     shininess: 5, 

@@ -4,7 +4,7 @@ export const Uranus = () => {
   const textureLoader = new THREE.TextureLoader();
   const uranusTexture = textureLoader.load("/textures/uranus.jpg");
 
-  const uranusGeometry = new THREE.SphereGeometry(160, 32, 32);
+  const uranusGeometry = new THREE.SphereGeometry(73);
   const uranusMaterial = new THREE.MeshPhongMaterial({
     map: uranusTexture,
     shininess: 5,

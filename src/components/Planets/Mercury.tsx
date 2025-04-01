@@ -4,7 +4,7 @@ export const Mercury = () => {
   const textureLoader = new THREE.TextureLoader();
   const mercuryTexture = textureLoader.load("/textures/mercury.jpg");
 
-  const mercuryGeometry = new THREE.SphereGeometry(14, 32, 32);
+  const mercuryGeometry = new THREE.SphereGeometry(7);
   const mercuryMaterial = new THREE.MeshPhongMaterial({
     map: mercuryTexture,
     shininess: 5, 

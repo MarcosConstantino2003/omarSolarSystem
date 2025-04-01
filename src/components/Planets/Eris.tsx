@@ -4,7 +4,7 @@ export const Eris = () => {
   const textureLoader = new THREE.TextureLoader();
   const erisTexture = textureLoader.load("/textures/eris.jpg");
 
-  const erisGeometry = new THREE.SphereGeometry(7, 32, 32); 
+  const erisGeometry = new THREE.SphereGeometry(3.3); 
   const erisMaterial = new THREE.MeshPhongMaterial({
     map: erisTexture,
     shininess: 5,

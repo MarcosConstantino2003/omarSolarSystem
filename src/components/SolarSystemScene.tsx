@@ -23,11 +23,11 @@ interface Planet {
   angle: number;
   speed: number;
   mesh: THREE.Object3D;
-  inclination: number; 
-  a: number; 
-  e: number; 
+  inclination: number;
+  a: number;
+  e: number;
+  orbitPoints: THREE.Vector3[]; // Puntos precalculados de la órbita
 }
-
 
 const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
 
@@ -42,7 +42,8 @@ export function SolarSystemScene({
   setFollowedPlanet,
   showDwarfOrbits,
   setIsLoading,
-  getMinZoom,
+  updateSpritesRef,
+  updateCameraRef,
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.RefObject<THREE.Scene | null>;
@@ -54,28 +55,13 @@ export function SolarSystemScene({
   zoomDistanceRef: React.RefObject<number>;
   setFollowedPlanet: (planet: string | null) => void;
   showDwarfOrbits: boolean;
-  antialias: boolean;
   setIsLoading: (loading: boolean) => void;
   getMinZoom: (planetName: string | null) => number;
   MAX_ZOOM: number;
   followedPlanet: string | null;
+  updateSpritesRef: React.RefObject<(() => void) | null>;
+  updateCameraRef: React.MutableRefObject<(() => void) | null>;
 }) {
-  const createTextTexture = (text: string) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = 256;
-    canvas.height = 256;
-    if (ctx) {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-    }
-    return new THREE.CanvasTexture(canvas);
-  };
-
   useEffect(() => {
     if (!canvasRef || !canvasRef.current) return;
 
@@ -106,56 +92,57 @@ export function SolarSystemScene({
     const stars = Stars();
     scene.add(stars);
 
-    //a: semieje mayor, e: excentricidad
+    // a: semieje mayor, e: excentricidad
     const planets: Planet[] = [
-      { name: "Mercury", angle: 19, speed: 0.004, mesh: Mercury(), a: 1800, e: 0.2056, inclination: 7.00 },
-      { name: "Venus",  angle: 16, speed: 0.0035, mesh: Venus(), a: 2300, e: 0.0068, inclination: 3.39 },
-      { name: "Earth", angle: 13, speed: 0.003, mesh: Earth(), a: 2700, e: 0.0167, inclination: 0.00 },
-      { name: "Mars",  angle: 11, speed: 0.0025, mesh: Mars(), a: 3100, e: 0.0934, inclination: 1.85 },
-      { name: "Jupiter",  angle: 147, speed: 0.0015, mesh: Jupiter(), a: 4200, e: 0.0484, inclination: 1.31 },
-      { name: "Saturn", angle: 4, speed: 0.001, mesh: Saturn(), a: 5700, e: 0.0556, inclination: 2.49 },
-      { name: "Uranus",  angle: 2, speed: 0.0006, mesh: Uranus(), a: 7000, e: 0.0472, inclination: 0.77 },
-      { name: "Neptune",  angle: 1, speed: 0.0004, mesh: Neptune(), a: 7600, e: 0.0086, inclination: 1.77 },
-      { name: "Pluto",  angle: 0, speed: 0.0002, mesh: Pluto(), a: 9000, e: 0.2488, inclination: 17.14 },
-      { name: "Eris",  angle: 0, speed: 0.0002, mesh: Eris(), a: 10200, e: 0.436, inclination: 44 },
-      { name: "Ceres", angle: 0, speed: 0.0025, mesh: Ceres(), a: 3800, e: 0.075, inclination: 10.7 },
-      { name: "Haumea",  angle: 2, speed: 0.0002, mesh: Haumea(), a: 11610, e: 0.195, inclination: 28.2 },
-      { name: "Makemake",  angle: 16, speed: 0.0002, mesh: Makemake(), a: 12258, e: 0.159, inclination: 29 },
+      { name: "Mercury", angle: 19, speed: 0.004, mesh: Mercury(), a: 3600, e: 0.2056, inclination: 7.00, orbitPoints: [] },
+      { name: "Venus", angle: 16, speed: 0.0035, mesh: Venus(), a: 4600, e: 0.0068, inclination: 3.39, orbitPoints: [] },
+      { name: "Earth", angle: 13, speed: 0.003, mesh: Earth(), a: 5400, e: 0.0167, inclination: 0.00, orbitPoints: [] },
+      { name: "Mars", angle: 11, speed: 0.0025, mesh: Mars(), a: 6200, e: 0.0934, inclination: 1.85, orbitPoints: [] },
+      { name: "Jupiter", angle: 147, speed: 0.0015, mesh: Jupiter(), a: 8400, e: 0.0484, inclination: 1.31, orbitPoints: [] },
+      { name: "Saturn", angle: 4, speed: 0.001, mesh: Saturn(), a: 10400, e: 0.0556, inclination: 2.49, orbitPoints: [] },
+      { name: "Uranus", angle: 2, speed: 0.0006, mesh: Uranus(), a: 14000, e: 0.0472, inclination: 0.77, orbitPoints: [] },
+      { name: "Neptune", angle: 1, speed: 0.0004, mesh: Neptune(), a: 15200, e: 0.0086, inclination: 1.77, orbitPoints: [] },
+      { name: "Pluto", angle: 0, speed: 0.0002, mesh: Pluto(), a: 18000, e: 0.2488, inclination: 17.14, orbitPoints: [] },
+      { name: "Eris", angle: 0, speed: 0.0002, mesh: Eris(), a: 20400, e: 0.436, inclination: 44, orbitPoints: [] },
+      { name: "Ceres", angle: 0, speed: 0.0025, mesh: Ceres(), a: 7600, e: 0.075, inclination: 10.7, orbitPoints: [] },
+      { name: "Haumea", angle: 2, speed: 0.0002, mesh: Haumea(), a: 23220, e: 0.195, inclination: 28.2, orbitPoints: [] },
+      { name: "Makemake", angle: 16, speed: 0.0002, mesh: Makemake(), a: 24000, e: 0.159, inclination: 29, orbitPoints: [] },
     ];
-    
 
     planets.forEach(({ mesh, name, a, e, inclination }) => {
       scene.add(mesh);
-    
-      // Calcular el semieje menor (b)
+
       const b = a * Math.sqrt(1 - e * e);
-    
-      // Convertir la inclinación a radianes
       const inclinacionRad = THREE.MathUtils.degToRad(inclination);
-    
-      // Generar los puntos de la órbita
-      const points: THREE.Vector3[] = Array.from({ length: 101 }, (_, i) => {
-        const theta = (i / 100) * 2 * Math.PI;
+
+      // Precalcular puntos de la órbita
+      const points: THREE.Vector3[] = Array.from({ length: 360 }, (_, i) => {
+        const theta = (i / 359) * 2 * Math.PI;
         const x = a * Math.cos(theta);
         const zBase = b * Math.sin(theta);
         return new THREE.Vector3(x, zBase * Math.sin(inclinacionRad), zBase * Math.cos(inclinacionRad));
       });
-    
-      // Crear la geometría y el material de la órbita
+
+      // Crear la órbita visual
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       const material = new THREE.LineBasicMaterial({ color: 0xffffff });
       const orbit = new THREE.Line(geometry, material);
-    
-      // Controlar la visibilidad de órbitas enanos
+
       orbit.visible = !dwarfPlanets.includes(name) || showDwarfOrbits;
       orbit.userData = { isDwarfOrbit: dwarfPlanets.includes(name) };
-    
       scene.add(orbit);
+
+      // Almacenar los puntos en el planeta
+      const planet = planets.find(p => p.name === name)!;
+      planet.orbitPoints = points;
+      mesh.userData.name = name; // Para depuración
     });
-    
+
     planetsRef.current = planets;
+
     let isDragging = false;
-    let previousX = 0, previousY = 0;
+    let previousX = 0,
+      previousY = 0;
 
     const onMouseDown = (event: MouseEvent) => {
       isDragging = true;
@@ -212,27 +199,34 @@ export function SolarSystemScene({
 
     const animate = () => {
       requestAnimationFrame(animate);
-      planets.forEach(({ mesh, a, e, inclination, speed }) => {
-        // Actualizar ángulo
+      planets.forEach(({ mesh, speed, orbitPoints }) => {
+        // Actualizar el ángulo
         mesh.userData.angle = (mesh.userData.angle ?? 0) + speed;
         if (mesh.userData.angle > 2 * Math.PI) mesh.userData.angle -= 2 * Math.PI;
-    
-        // Calcular la posición orbital
-        const b = a * Math.sqrt(1 - e * e);
-        const x = a * Math.cos(mesh.userData.angle);
-        const zBase = b * Math.sin(mesh.userData.angle);
-    
-        // Aplicar inclinación orbital
-        const inclinacionRad = THREE.MathUtils.degToRad(inclination);
-        const y = zBase * Math.sin(inclinacionRad);
-        const z = zBase * Math.cos(inclinacionRad);
-    
-        // Aplicar la nueva posición
-        mesh.position.set(x, y, z);
-    
+
+        // Calcular índice fraccional para interpolación
+        const t = (mesh.userData.angle / (2 * Math.PI)) * (orbitPoints.length - 1);
+        const index = Math.floor(t);
+        const fraction = t - index; // Parte fraccional entre 0 y 1
+
+        // Obtener los dos puntos adyacentes
+        const point1 = orbitPoints[index];
+        const point2 = orbitPoints[(index + 1) % orbitPoints.length]; // Usar módulo para cerrar la órbita
+
+        // Interpolar entre point1 y point2
+        const interpolatedPosition = point1.clone().lerp(point2, fraction);
+        mesh.position.copy(interpolatedPosition);
+
         // Rotación del planeta sobre su eje
         mesh.rotation.y += 0.002;
       });
+
+      if (updateSpritesRef.current) {
+        updateSpritesRef.current();
+      }
+      if (updateCameraRef.current) {
+        updateCameraRef.current(); 
+      }
       renderer.render(scene, camera);
       if (!hasRenderedFirstFrame) {
         hasRenderedFirstFrame = true;

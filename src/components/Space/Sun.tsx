@@ -9,7 +9,7 @@ export const Sun = () => {
   const sunTexture = textureLoader.load("/textures/sun.jpg");
 
   // Create the sun sphere
-  const sunGeometry = new THREE.SphereGeometry(1000, 1000, 1000);
+  const sunGeometry = new THREE.SphereGeometry(2000);
   const sunMaterial = new THREE.MeshBasicMaterial({
     map: sunTexture,
   });

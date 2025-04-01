@@ -2,14 +2,20 @@ import * as THREE from "three";
 
 export const Stars = () => {
   const starGeometry = new THREE.BufferGeometry();
-  const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 }); // Increased size slightly for visibility
+  const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
 
   const starVertices = [];
-  const starCount = 7000; 
+  const starCount = 7000;
+  const radius = 50000; // Radio de la esfera de estrellas
+
   for (let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 100000;
-    const y = (Math.random() - 0.5) * 100000; 
-    const z = (Math.random() - 0.5) * 100000; 
+    const theta = Math.random() * Math.PI * 2; // Azimutal (0 a 360°)
+    const phi = Math.acos(2 * Math.random() - 1); // Elevación (0 a 180°)
+    
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
+    
     starVertices.push(x, y, z);
   }
 

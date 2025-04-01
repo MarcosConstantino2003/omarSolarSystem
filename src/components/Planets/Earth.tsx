@@ -5,7 +5,7 @@ export const Earth = () => {
 
   // Tierra
   const earthTexture = textureLoader.load("/textures/earth.jpg");
-  const earthGeometry = new THREE.SphereGeometry(38, 32, 32);
+  const earthGeometry = new THREE.SphereGeometry(18);
   const earthMaterial = new THREE.MeshPhongMaterial({
     map: earthTexture,
     shininess: 5,
@@ -18,7 +18,7 @@ export const Earth = () => {
 
   // Luna
   const moonTexture = textureLoader.load("/textures/moon.jpg");
-  const moonGeometry = new THREE.SphereGeometry(10, 32, 32); // Luna más pequeña que la Tierra
+  const moonGeometry = new THREE.SphereGeometry(5); 
   const moonMaterial = new THREE.MeshPhongMaterial({
     map: moonTexture,
     shininess: 5,

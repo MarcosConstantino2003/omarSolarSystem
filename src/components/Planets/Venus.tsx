@@ -4,7 +4,7 @@ export const Venus = () => {
   const textureLoader = new THREE.TextureLoader();
   const venusTexture = textureLoader.load("/textures/venus.jpg");
 
-  const venusGeometry = new THREE.SphereGeometry(40, 32, 32);
+  const venusGeometry = new THREE.SphereGeometry(17);
   const venusMaterial = new THREE.MeshPhongMaterial({
     map: venusTexture,
     shininess: 5, 

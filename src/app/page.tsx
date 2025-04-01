@@ -16,9 +16,10 @@ interface Planet {
   inclination: number; 
   a: number; 
   e: number; 
+  orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 20000;
+const MAX_ZOOM = 40000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
     case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
@@ -42,10 +43,10 @@ export default function Home() {
   const sunRef = useRef<THREE.Object3D | null>(null);
   const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z: Math.PI / 4 });
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
+  const updateSpritesRef = useRef<(() => void) | null>(null);
   const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
-  const [antialias, setAntialias] = useState(false);
-
+  const updateCameraRef = useRef<(() => void) | null>(null);
   const planetNames: { [key: string]: string } = {
     Mercury: "Mercurio", Venus: "Venus", Earth: "Tierra", Mars: "Marte",
     Jupiter: "Júpiter", Saturn: "Saturno", Uranus: "Urano", Neptune: "Neptuno",
@@ -134,11 +135,12 @@ export default function Home() {
           rotationRef={rotationRef}
           setFollowedPlanet={setFollowedPlanet}
           showDwarfOrbits={showDwarfOrbits}
-          antialias={antialias}
           setIsLoading={setIsLoading}
           getMinZoom={getMinZoom}
           MAX_ZOOM={MAX_ZOOM}
           followedPlanet={followedPlanet}
+          updateSpritesRef={updateSpritesRef}
+          updateCameraRef={updateCameraRef}
         />
         <CameraControls
           cameraRef={cameraRef}
@@ -148,6 +150,7 @@ export default function Home() {
           followedPlanet={followedPlanet}
           rotationRef={rotationRef}
           zoomDistanceRef={zoomDistanceRef}
+          updateCameraRef={updateCameraRef}
         />
         <PlanetLabels
           sceneRef={sceneRef}
@@ -157,6 +160,8 @@ export default function Home() {
           showDwarfOrbits={showDwarfOrbits}
           followedPlanet={followedPlanet}
           planetNames={planetNames}
+          updateSpritesRef={updateSpritesRef}
+          setFollowedPlanet={setFollowedPlanet}
         />
         <div className="planet-dropdown-container">
           <button

@@ -4,7 +4,7 @@ export const Pluto = () => {
   const textureLoader = new THREE.TextureLoader();
   const plutoTexture = textureLoader.load("/textures/pluto.jpg");
 
-  const plutoGeometry = new THREE.SphereGeometry(7, 32, 32); 
+  const plutoGeometry = new THREE.SphereGeometry(3.5); 
   const plutoMaterial = new THREE.MeshPhongMaterial({
     map: plutoTexture,
     shininess: 5, 
