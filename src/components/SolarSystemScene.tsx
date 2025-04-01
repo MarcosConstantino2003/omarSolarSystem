@@ -45,13 +45,13 @@ export function SolarSystemScene({
   getMinZoom,
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
-  sceneRef: React.MutableRefObject<THREE.Scene | null>;
-  cameraRef: React.MutableRefObject<THREE.PerspectiveCamera | null>;
-  rendererRef: React.MutableRefObject<THREE.WebGLRenderer | null>;
-  planetsRef: React.MutableRefObject<Planet[]>;
-  sunRef: React.MutableRefObject<THREE.Object3D | null>;
-  rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>;
-  zoomDistanceRef: React.MutableRefObject<number>;
+  sceneRef: React.RefObject<THREE.Scene | null>;
+  cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
+  rendererRef: React.RefObject<THREE.WebGLRenderer | null>;
+  planetsRef: React.RefObject<Planet[]>;
+  sunRef: React.RefObject<THREE.Object3D | null>;
+  rotationRef: React.RefObject<{ x: number; y: number; z: number }>;
+  zoomDistanceRef: React.RefObject<number>;
   setFollowedPlanet: (planet: string | null) => void;
   showDwarfOrbits: boolean;
   antialias: boolean;
@@ -103,12 +103,6 @@ export function SolarSystemScene({
     const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
 
-    const textTexture = createTextTexture("easter egg decirle a omar");
-    const testCubeMaterials = Array(6).fill(null).map(() => new THREE.MeshBasicMaterial({ map: textTexture }));
-    const testCube = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), testCubeMaterials);
-    testCube.position.set(0, 0, 0);
-    scene.add(testCube);
-
     const stars = Stars();
     scene.add(stars);
 
@@ -118,13 +112,13 @@ export function SolarSystemScene({
       { name: "Venus",  angle: 16, speed: 0.0035, mesh: Venus(), a: 2300, e: 0.0068, inclination: 3.39 },
       { name: "Earth", angle: 13, speed: 0.003, mesh: Earth(), a: 2700, e: 0.0167, inclination: 0.00 },
       { name: "Mars",  angle: 11, speed: 0.0025, mesh: Mars(), a: 3100, e: 0.0934, inclination: 1.85 },
-      { name: "Jupiter",  angle: 7, speed: 0.0015, mesh: Jupiter(), a: 4200, e: 0.0484, inclination: 1.31 },
+      { name: "Jupiter",  angle: 147, speed: 0.0015, mesh: Jupiter(), a: 4200, e: 0.0484, inclination: 1.31 },
       { name: "Saturn", angle: 4, speed: 0.001, mesh: Saturn(), a: 5700, e: 0.0556, inclination: 2.49 },
       { name: "Uranus",  angle: 2, speed: 0.0006, mesh: Uranus(), a: 7000, e: 0.0472, inclination: 0.77 },
       { name: "Neptune",  angle: 1, speed: 0.0004, mesh: Neptune(), a: 7600, e: 0.0086, inclination: 1.77 },
       { name: "Pluto",  angle: 0, speed: 0.0002, mesh: Pluto(), a: 9000, e: 0.2488, inclination: 17.14 },
       { name: "Eris",  angle: 0, speed: 0.0002, mesh: Eris(), a: 10200, e: 0.436, inclination: 44 },
-      { name: "Ceres", angle: 0, speed: 0.0002, mesh: Ceres(), a: 3800, e: 0.075, inclination: 10.7 },
+      { name: "Ceres", angle: 0, speed: 0.0025, mesh: Ceres(), a: 3800, e: 0.075, inclination: 10.7 },
       { name: "Haumea",  angle: 2, speed: 0.0002, mesh: Haumea(), a: 11610, e: 0.195, inclination: 28.2 },
       { name: "Makemake",  angle: 16, speed: 0.0002, mesh: Makemake(), a: 12258, e: 0.159, inclination: 29 },
     ];

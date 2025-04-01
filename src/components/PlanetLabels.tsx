@@ -33,9 +33,9 @@ export function PlanetLabels({
   followedPlanet,
   planetNames,
 }: {
-  sceneRef: React.MutableRefObject<THREE.Scene | null>;
-  cameraRef: React.MutableRefObject<THREE.PerspectiveCamera | null>;
-  planetsRef: React.MutableRefObject<Planet[]>;
+  sceneRef: React.RefObject<THREE.Scene | null>;
+  cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
+  planetsRef: React.RefObject<Planet[]>;
   showPlanetNames: boolean;
   showDwarfOrbits: boolean;
   followedPlanet: string | null;

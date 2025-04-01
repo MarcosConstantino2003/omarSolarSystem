@@ -29,14 +29,14 @@ export const Saturn = () => {
     const angle = Math.random() * Math.PI * 2;
     const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
     const x = Math.cos(angle) * radius;
-    const y = (Math.random() - 0.5) * 5; // Menos dispersión en vertical
+    const y = (Math.random() - 0.5) * 5; 
     const z = Math.sin(angle) * radius;
     asteroidVertices.push(x, y, z);
 
     // Degradado de color: gris en los bordes, amarillo/beige en el centro
-    const t = (radius - innerRadius) / (outerRadius - innerRadius); // 0 en el centro, 1 en los bordes
+    const t = (radius - innerRadius) / (outerRadius - innerRadius); 
     color.setRGB(
-      0.8 - 0.8 * t, // Amarillo/Beige → Gris
+      0.8 - 0.8 * t,
       0.7 - 0.7 * t,
       0.5 - 0.5 * t
     );
@@ -48,7 +48,7 @@ export const Saturn = () => {
 
   // Material Phong para los asteroides
   const asteroidMaterial = new THREE.PointsMaterial({
-    vertexColors: true, // Permite el degradado de colores
+    vertexColors: true, 
     size: 2,
   });
 
@@ -58,7 +58,6 @@ export const Saturn = () => {
   asteroidRing.castShadow = true;
   asteroidRing.receiveShadow = true;
 
-  // 📦 Grupo Saturno + anillo
   const saturnWithRing = new THREE.Group();
   saturnWithRing.add(saturnMesh);
   

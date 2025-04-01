@@ -7,14 +7,14 @@ export const Makemake = () => {
   const makemakeGeometry = new THREE.SphereGeometry(7, 32, 32); 
   const makemakeMaterial = new THREE.MeshPhongMaterial({
     map: makemakeTexture,
-    shininess: 5, // Reducir brillo para menos contraste duro
-    specular: new THREE.Color(0x222222), // Reflejos más suaves y oscuros
+    shininess: 5, 
+    specular: new THREE.Color(0x222222), 
     color: new THREE.Color(0xaaaaaa),
   });
 
   const makemakeMesh = new THREE.Mesh(makemakeGeometry, makemakeMaterial);
-  makemakeMesh.castShadow = true; // Allow Makemake to cast shadows
-  makemakeMesh.receiveShadow = true; // Allow Makemake to receive shadows
+  makemakeMesh.castShadow = true; 
+  makemakeMesh.receiveShadow = true; 
 
   return makemakeMesh;
 };

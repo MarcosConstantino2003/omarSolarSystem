@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react"; // Added useEffect
+import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import Head from "next/head";
 import { SolarSystemScene } from "../components/SolarSystemScene";
@@ -45,7 +45,6 @@ export default function Home() {
   const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
   const [antialias, setAntialias] = useState(false);
-  const cameraOrientationRef = useRef(new THREE.Quaternion());
 
   const planetNames: { [key: string]: string } = {
     Mercury: "Mercurio", Venus: "Venus", Earth: "Tierra", Mars: "Marte",

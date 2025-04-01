@@ -16,12 +16,12 @@ export const Uranus = () => {
   uranusMesh.castShadow = true;
   uranusMesh.receiveShadow = true;
 
-  // 🌑 Anillo de Urano (con 2 capas y más separación)
+  // Anillo de Urano 
   const asteroidGeometry = new THREE.BufferGeometry();
-  const numAsteroids = 8000; // Número de asteroides
-  const innerRadius = 200;  // Anillo interno
-  const middleRadius = 230; // Mayor separación entre capas
-  const outerRadius = 250;  // Anillo externo
+  const numAsteroids = 8000; 
+  const innerRadius = 200;  
+  const middleRadius = 230; 
+  const outerRadius = 250;  
   const asteroidVertices = [];
   const asteroidColors = [];
   const color = new THREE.Color();
@@ -31,7 +31,6 @@ export const Uranus = () => {
     const angle = Math.random() * Math.PI * 2;
     let radius = Math.random() * (outerRadius - innerRadius) + innerRadius;
 
-    // Asignar un radio según las capas, con separación visible entre ellas
     if (radius < middleRadius) {
       radius = innerRadius + Math.random() * (middleRadius - innerRadius); // Capa interna
     } else {
@@ -39,18 +38,18 @@ export const Uranus = () => {
     }
 
     const x = Math.cos(angle) * radius;
-    const y = (Math.random() - 0.5) * 5; // Menos dispersión en vertical
+    const y = (Math.random() - 0.5) * 5;
     const z = Math.sin(angle) * radius;
     asteroidVertices.push(x, y, z);
 
-    // Degradado de color más oscuro: gris casi negro en el centro, rojo y azul mucho más oscuros en las capas externas
-    const t = (radius - innerRadius) / (outerRadius - innerRadius); // 0 en el centro, 1 en los bordes
+    // Degradado de color
+    const t = (radius - innerRadius) / (outerRadius - innerRadius); 
     if (t < 0.33) {
-      color.setRGB(0.05, 0.05, 0.05); // Gris muy oscuro (casi negro)
+      color.setRGB(0.05, 0.05, 0.05);
     } else if (t < 0.66) {
-      color.setRGB(0.05, 0.02, 0.02); // Rojo más oscuro (más opaco)
+      color.setRGB(0.05, 0.02, 0.02); 
     } else {
-      color.setRGB(0, 0, 0.01); // Azul mucho más oscuro (más opaco)
+      color.setRGB(0, 0, 0.01); 
     }
     asteroidColors.push(color.r, color.g, color.b);
   }
@@ -59,7 +58,7 @@ export const Uranus = () => {
   asteroidGeometry.setAttribute("color", new THREE.Float32BufferAttribute(asteroidColors, 3));
 
   const asteroidMaterial = new THREE.PointsMaterial({
-    vertexColors: true, // Permite el degradado de colores
+    vertexColors: true,
     size: 2,
   });
 
@@ -68,7 +67,7 @@ export const Uranus = () => {
   asteroidRing.castShadow = true;
   asteroidRing.receiveShadow = true;
 
-  // 📦 Grupo Urano + anillo
+  // Grupo Urano + anillo
   const uranusWithRing = new THREE.Group();
   uranusWithRing.add(uranusMesh);
   uranusWithRing.add(asteroidRing);

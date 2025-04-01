@@ -7,14 +7,14 @@ export const Ceres = () => {
   const ceresGeometry = new THREE.SphereGeometry(7, 32, 32); 
   const ceresMaterial = new THREE.MeshPhongMaterial({
     map: ceresTexture,
-    shininess: 5, // Reducir brillo para menos contraste duro
-    specular: new THREE.Color(0x222222), // Reflejos más suaves y oscuros
+    shininess: 5, 
+    specular: new THREE.Color(0x222222), 
     color: new THREE.Color(0xaaaaaa),
   });
 
   const ceresMesh = new THREE.Mesh(ceresGeometry, ceresMaterial);
-  ceresMesh.castShadow = true; // Allow Ceres to cast shadows
-  ceresMesh.receiveShadow = true; // Allow Ceres to receive shadows
+  ceresMesh.castShadow = true; 
+  ceresMesh.receiveShadow = true; 
 
   return ceresMesh;
 };

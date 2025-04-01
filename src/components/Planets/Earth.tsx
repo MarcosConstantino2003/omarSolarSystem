@@ -3,7 +3,7 @@ import * as THREE from "three";
 export const Earth = () => {
   const textureLoader = new THREE.TextureLoader();
 
-  // 🌍 Tierra
+  // Tierra
   const earthTexture = textureLoader.load("/textures/earth.jpg");
   const earthGeometry = new THREE.SphereGeometry(38, 32, 32);
   const earthMaterial = new THREE.MeshPhongMaterial({
@@ -16,7 +16,7 @@ export const Earth = () => {
   earthMesh.castShadow = true;
   earthMesh.receiveShadow = true;
 
-  // 🌕 Luna
+  // Luna
   const moonTexture = textureLoader.load("/textures/moon.jpg");
   const moonGeometry = new THREE.SphereGeometry(10, 32, 32); // Luna más pequeña que la Tierra
   const moonMaterial = new THREE.MeshPhongMaterial({
@@ -29,15 +29,15 @@ export const Earth = () => {
   moonMesh.castShadow = true;
   moonMesh.receiveShadow = true;
 
-  // 📦 Grupo Tierra + Luna
+  //  Grupo Tierra + Luna
   const earthGroup = new THREE.Group();
   earthGroup.add(earthMesh);
   earthGroup.add(moonMesh);
 
   // Parámetros de la órbita lunar
   let moonAngle = 0;
-  const moonOrbitRadius = 100; // Distancia de la Luna a la Tierra
-  const moonOrbitSpeed = 0.01; // Velocidad de órbita (ajustable)
+  const moonOrbitRadius = 100; 
+  const moonOrbitSpeed = 0.01; 
 
   // Animación de la Luna
   const animate = () => {
@@ -47,9 +47,9 @@ export const Earth = () => {
     // Posición de la Luna en una órbita circular (puede hacerse elíptica si querés)
     const moonX = Math.cos(moonAngle) * moonOrbitRadius;
     const moonZ = Math.sin(moonAngle) * moonOrbitRadius;
-    moonMesh.position.set(moonX, 0, moonZ); // Orbita en el plano XZ
+    moonMesh.position.set(moonX, 0, moonZ); 
 
-    // Rotación de la Luna (opcional)
+    // Rotación de la Luna 
     moonMesh.rotation.y += 0.0002;
 
     requestAnimationFrame(animate);
