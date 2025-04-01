@@ -10,10 +10,12 @@ import "../app/globals.css";
 
 interface Planet {
   name: string;
-  radius: number;
   angle: number;
   speed: number;
   mesh: THREE.Object3D;
+  inclination: number; 
+  a: number; 
+  e: number; 
 }
 
 const MAX_ZOOM = 20000;
@@ -61,7 +63,6 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
-  // Add touch event handling for the slider
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
@@ -71,7 +72,7 @@ export default function Home() {
 
     const onTouchStart = (event: TouchEvent) => {
       if (event.target === slider) {
-        event.preventDefault(); // Prevent default to avoid scrolling
+        event.preventDefault();
         isDraggingSlider = true;
         startY = event.touches[0].clientY;
       }
@@ -84,13 +85,13 @@ export default function Home() {
       const touchY = event.touches[0].clientY;
       const sliderRect = slider.getBoundingClientRect();
       const sliderHeight = sliderRect.height;
-      const deltaY = startY - touchY; // Invertido porque el slider está vertical
-      const sensitivity = 100 / sliderHeight; // Normaliza el movimiento al rango 0-100
+      const deltaY = startY - touchY; 
+      const sensitivity = 100 / sliderHeight; 
       let newValue = Number(slider.value) + deltaY * sensitivity;
 
-      newValue = Math.max(0, Math.min(100, newValue)); // Limita al rango 0-100
+      newValue = Math.max(0, Math.min(100, newValue)); 
       handleZoomChange(newValue);
-      startY = touchY; // Actualiza la posición inicial para el próximo movimiento
+      startY = touchY; 
     };
 
     const onTouchEnd = () => {
@@ -106,7 +107,7 @@ export default function Home() {
       slider.removeEventListener("touchmove", onTouchMove);
       slider.removeEventListener("touchend", onTouchEnd);
     };
-  }, [followedPlanet]); // Dependencia en followedPlanet para recalcular minZoom
+  }, [followedPlanet]); 
 
   return (
     <>
@@ -201,7 +202,7 @@ export default function Home() {
           defaultValue="50"
           ref={sliderRef}
           onChange={(e) => {
-            e.stopPropagation(); // Prevent slider change from reaching canvas
+            e.stopPropagation(); 
             handleZoomChange(Number(e.target.value));
           }}
           className="zoom-slider absolute bottom-4 left-4"
@@ -226,7 +227,7 @@ export default function Home() {
                 href="https://www.linkedin.com/in/marquitosconstantino/"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()} // Prevent link click from reaching canvas
+                onClick={(e) => e.stopPropagation()} 
               >
                 <img
                   src="/linkedin.png"

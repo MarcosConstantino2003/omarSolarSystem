@@ -5,10 +5,12 @@ import * as THREE from "three";
 
 interface Planet {
   name: string;
-  radius: number;
   angle: number;
   speed: number;
   mesh: THREE.Object3D;
+  inclination: number; 
+  a: number; 
+  e: number; 
 }
 
 const MAX_ZOOM = 20000;
