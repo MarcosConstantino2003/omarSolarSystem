@@ -19,15 +19,15 @@ interface Planet {
   orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 40000;
+const MAX_ZOOM = 50000000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 20;
-    case "Venus": case "Earth": return 70;
-    case "Mars": return 40;
-    case "Uranus": case "Neptune": return 320;
-    case "Jupiter": case "Saturn": return 470;
-    default: return 1700;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5;
+    case "Venus": case "Earth": return 35;
+    case "Mars": return 20;
+    case "Uranus": case "Neptune": return 250;
+    case "Jupiter": case "Saturn": return 400;
+    default: return 3400;
   }
 };
 
@@ -44,7 +44,7 @@ export default function Home() {
   const rotationRef = useRef({ x: Math.PI / 4, y: Math.PI / 4, z: Math.PI / 4 });
   const zoomDistanceRef = useRef(Math.sqrt(8000 * 1000 + 8000 * 1000 + 6000 * 1000));
   const updateSpritesRef = useRef<(() => void) | null>(null);
-  const [showDwarfOrbits, setShowDwarfOrbits] = useState(true);
+  const [showDwarfOrbits, setShowDwarfOrbits] = useState(false);
   const [showPlanetNames, setShowPlanetNames] = useState(true);
   const updateCameraRef = useRef<(() => void) | null>(null);
   const planetNames: { [key: string]: string } = {

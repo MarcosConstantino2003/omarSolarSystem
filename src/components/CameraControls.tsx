@@ -14,7 +14,7 @@ interface Planet {
   orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 40000;
+const MAX_ZOOM = 50000000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
     case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5;
@@ -104,7 +104,7 @@ export function CameraControls({
 
     const onScroll = (event: WheelEvent) => {
       const minZoom = getMinZoom(followedPlanet);
-      const zoomSpeed = zoomDistanceRef.current * 0.001;
+      const zoomSpeed = zoomDistanceRef.current * 0.002;
       zoomDistanceRef.current += event.deltaY * zoomSpeed;
       zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
     };
