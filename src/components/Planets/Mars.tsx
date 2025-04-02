@@ -4,7 +4,7 @@ export const Mars = () => {
   const textureLoader = new THREE.TextureLoader();
   const marsTexture = textureLoader.load("/textures/mars.jpg");
 
-  const marsGeometry = new THREE.SphereGeometry(10);
+  const marsGeometry = new THREE.SphereGeometry(1);
   const marsMaterial = new THREE.MeshPhongMaterial({
     map: marsTexture,
     shininess: 5, 

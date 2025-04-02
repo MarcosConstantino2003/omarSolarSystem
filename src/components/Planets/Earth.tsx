@@ -5,7 +5,7 @@ export const Earth = () => {
 
   // Tierra
   const earthTexture = textureLoader.load("/textures/earth.jpg");
-  const earthGeometry = new THREE.SphereGeometry(18);
+  const earthGeometry = new THREE.SphereGeometry(1.8);
   const earthMaterial = new THREE.MeshPhongMaterial({
     map: earthTexture,
     shininess: 5,
@@ -18,7 +18,7 @@ export const Earth = () => {
 
   // Luna
   const moonTexture = textureLoader.load("/textures/moon.jpg");
-  const moonGeometry = new THREE.SphereGeometry(5); 
+  const moonGeometry = new THREE.SphereGeometry(0.5); 
   const moonMaterial = new THREE.MeshPhongMaterial({
     map: moonTexture,
     shininess: 5,
@@ -36,7 +36,7 @@ export const Earth = () => {
 
   // Parámetros de la órbita lunar
   let moonAngle = 0;
-  const moonOrbitRadius = 100; 
+  const moonOrbitRadius = 10; 
   const moonOrbitSpeed = 0.01; 
 
   // Animación de la Luna

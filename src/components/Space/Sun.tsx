@@ -7,7 +7,7 @@ export const Sun = ({ cameraRef }: { cameraRef: React.RefObject<THREE.Perspectiv
   const sunTexture = textureLoader.load("/textures/sun.jpg");
   const glowTexture = textureLoader.load("/textures/sunglow.png");
 
-  const sunGeometry = new THREE.SphereGeometry(2000);
+  const sunGeometry = new THREE.SphereGeometry(200);
   const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture });
   const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
   sunGroup.add(sunMesh);
@@ -20,7 +20,7 @@ export const Sun = ({ cameraRef }: { cameraRef: React.RefObject<THREE.Perspectiv
     depthTest: false,
   });
   const glowSprite = new THREE.Sprite(glowMaterial);
-  glowSprite.scale.set(10000, 10000, 1);
+  glowSprite.scale.set(1000, 1000, 1);
   glowSprite.position.set(0, 0, 0);
   sunGroup.add(glowSprite);
 
@@ -35,7 +35,7 @@ export const Sun = ({ cameraRef }: { cameraRef: React.RefObject<THREE.Perspectiv
     const camera = cameraRef.current;
     if (camera) {
       const distance = camera.position.distanceTo(sunGroup.position);
-      const scale = Math.max(10000, distance * 0.15);
+      const scale = Math.max(1000, distance * 0.15);
       glowSprite.scale.set(scale, scale, 1);
     }
 

@@ -19,15 +19,15 @@ interface Planet {
   orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 50000000;
+const MAX_ZOOM = 500000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5;
-    case "Venus": case "Earth": return 35;
-    case "Mars": return 20;
-    case "Uranus": case "Neptune": return 250;
-    case "Jupiter": case "Saturn": return 400;
-    default: return 3400;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 0.5;
+    case "Venus": case "Earth": return 3.5;
+    case "Mars": return 2.0;
+    case "Uranus": case "Neptune": return 25.0;
+    case "Jupiter": case "Saturn": return 40.0;
+    default: return 340.0;
   }
 };
 

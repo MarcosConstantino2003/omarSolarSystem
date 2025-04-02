@@ -5,8 +5,8 @@ export const Stars = () => {
   const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
 
   const starVertices = [];
-  const starCount = 14000;
-  const radius = 100000000; // Radio de la esfera de estrellas
+  const starCount = 2000;
+  const radius = 1000000; // Radio de la esfera de estrellas
 
   for (let i = 0; i < starCount; i++) {
     const theta = Math.random() * Math.PI * 2; 

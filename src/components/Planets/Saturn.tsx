@@ -5,7 +5,7 @@ export const Saturn = () => {
 
   // 🌑 Saturno: planeta
   const saturnTexture = textureLoader.load("/textures/saturn.jpg");
-  const saturnGeometry = new THREE.SphereGeometry(167); // Más detalle
+  const saturnGeometry = new THREE.SphereGeometry(16.7); 
   const saturnMaterial = new THREE.MeshPhongMaterial({
     map: saturnTexture,
     shininess: 5,
@@ -17,9 +17,9 @@ export const Saturn = () => {
   saturnMesh.receiveShadow = true;
 
   const asteroidGeometry = new THREE.BufferGeometry();
-  const numAsteroids = 16000; // Más asteroides
-  const innerRadius = 340;
-  const outerRadius = 600;
+  const numAsteroids = 6400;
+  const innerRadius = 30;
+  const outerRadius = 56;
 
   const asteroidVertices = [];
   const asteroidColors = [];
@@ -49,7 +49,7 @@ export const Saturn = () => {
   // Material Phong para los asteroides
   const asteroidMaterial = new THREE.PointsMaterial({
     vertexColors: true, 
-    size: 2,
+    size: 0.3,
   });
 
   // Asteroides como puntos

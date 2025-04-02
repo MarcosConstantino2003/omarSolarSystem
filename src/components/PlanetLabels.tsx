@@ -16,12 +16,12 @@ interface Planet {
 
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5; 
-    case "Venus": case "Earth": return 35;
-    case "Mars": return 20; 
-    case "Uranus": case "Neptune": return 160; 
-    case "Jupiter": case "Saturn": return 230; 
-    default: return 3400;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 0.5;
+    case "Venus": case "Earth": return 3.5;
+    case "Mars": return 2.0;
+    case "Uranus": case "Neptune": return 25.0;
+    case "Jupiter": case "Saturn": return 40.0;
+    default: return 340.0;
   }
 };
 
@@ -33,8 +33,8 @@ export function PlanetLabels({
   showDwarfOrbits,
   followedPlanet,
   planetNames,
-  setFollowedPlanet, // Añadido para manejar clics
-  updateSpritesRef, // Referencia para pasar la función al SolarSystemScene
+  setFollowedPlanet,
+  updateSpritesRef,
 }: {
   sceneRef: React.RefObject<THREE.Scene | null>;
   cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
@@ -60,10 +60,13 @@ export function PlanetLabels({
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const fontSize = 12;
-      canvas.width = 512;
-      canvas.height = 128;
-      ctx.scale(2, 2);
+      const baseFontSize = 24; // Reducido para mejor proporción
+      const sizeFactor = 1 + getMinZoom(planet.name)/100;
+      const fontSize = baseFontSize * sizeFactor;
+
+      canvas.width = 1024; // Mayor resolución
+      canvas.height = 256;
+      ctx.scale(2, 2); // Escala para nitidez
 
       ctx.fillStyle = "rgba(0, 0, 0, 0)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -96,33 +99,36 @@ export function PlanetLabels({
       spriteElements.forEach(({ planet, sprite }) => {
         const isDwarf = dwarfPlanets.includes(planet.name);
         const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
+        const distanceToCamera = camera.position.distanceTo(planet.mesh.position);
 
-        sprite.visible = shouldShow;
+        sprite.visible = shouldShow
 
-        if (shouldShow) {
+        if (sprite.visible) {
           let offsetY: number;
 
           if (followedPlanet) {
             if (planet.name === followedPlanet) {
-              offsetY = getMinZoom(planet.name) * 1.1 + 8;
+              offsetY = getMinZoom(planet.name) * 1.1 + 2; 
             } else {
-              offsetY = getMinZoom(planet.name) + 130; 
+              offsetY = getMinZoom(planet.name) + 5; 
             }
           } else {
-            offsetY = getMinZoom(planet.name) + 200;
+            offsetY = getMinZoom(planet.name) + 20; 
           }
 
-          const targetPosition = sprite.position.copy(planet.mesh.position);
+          const targetPosition = planet.mesh.position.clone();
           targetPosition.y += offsetY;
-          sprite.position.lerp(targetPosition, 0.6); // 0.1 es la velocidad de suavizado
+          sprite.position.copy(targetPosition);
+
+          const baseScale = 40;
           const distance = camera.position.distanceTo(sprite.position);
-          const scaleFactor = Math.max(5, distance * 0.006);
-          sprite.scale.lerp(new THREE.Vector3(scaleFactor * 100, scaleFactor * 30, 1), 0.5);
+
+          const scaleFactor = Math.max(getMinZoom(planet.name) * 1.5, distance * 0.016);
+          sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
         }
       });
     };
 
-    // Pasar la función updateSprites al ref para usarla en SolarSystemScene
     updateSpritesRef.current = updateSprites;
 
     const onClick = (event: MouseEvent) => {
@@ -148,7 +154,7 @@ export function PlanetLabels({
       spriteElements.forEach(({ sprite }) => sprite.material.map?.dispose());
       spriteElements.forEach(({ sprite }) => sprite.material.dispose());
       window.removeEventListener("click", onClick);
-      updateSpritesRef.current = null; // Limpiar la referencia
+      updateSpritesRef.current = null;
     };
   }, [showPlanetNames, showDwarfOrbits, followedPlanet, planetNames, setFollowedPlanet]);
 

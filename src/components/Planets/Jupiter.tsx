@@ -4,7 +4,7 @@ export const Jupiter = () => {
   const textureLoader = new THREE.TextureLoader();
   const jupiterTexture = textureLoader.load("/textures/jupiter.jpg");
 
-  const jupiterGeometry = new THREE.SphereGeometry(200);
+  const jupiterGeometry = new THREE.SphereGeometry(20);
   const jupiterMaterial = new THREE.MeshPhongMaterial({
     map: jupiterTexture,
     shininess: 5, 

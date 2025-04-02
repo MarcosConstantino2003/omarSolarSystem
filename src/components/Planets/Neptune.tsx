@@ -4,7 +4,7 @@ export const Neptune = () => {
   const textureLoader = new THREE.TextureLoader();
   const neptuneTexture = textureLoader.load("/textures/neptune.jpg");
 
-  const neptuneGeometry = new THREE.SphereGeometry(71);
+  const neptuneGeometry = new THREE.SphereGeometry(7.1);
   const neptuneMaterial = new THREE.MeshPhongMaterial({
     map: neptuneTexture,
     shininess: 5,

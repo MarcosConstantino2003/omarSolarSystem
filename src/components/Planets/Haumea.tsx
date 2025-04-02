@@ -4,7 +4,7 @@ export const Haumea = () => {
   const textureLoader = new THREE.TextureLoader();
   const haumeaTexture = textureLoader.load("/textures/haumea.jpg");
 
-  const haumeaGeometry = new THREE.SphereGeometry(2.2); 
+  const haumeaGeometry = new THREE.SphereGeometry(0.22); 
   const haumeaMaterial = new THREE.MeshPhongMaterial({
     map: haumeaTexture,
     shininess: 5, 

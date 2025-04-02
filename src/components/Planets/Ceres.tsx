@@ -4,7 +4,7 @@ export const Ceres = () => {
   const textureLoader = new THREE.TextureLoader();
   const ceresTexture = textureLoader.load("/textures/ceres.jpg");
 
-  const ceresGeometry = new THREE.SphereGeometry(1.4); 
+  const ceresGeometry = new THREE.SphereGeometry(0.14); 
   const ceresMaterial = new THREE.MeshPhongMaterial({
     map: ceresTexture,
     shininess: 5, 

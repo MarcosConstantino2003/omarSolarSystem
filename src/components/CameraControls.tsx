@@ -14,15 +14,15 @@ interface Planet {
   orbitPoints: THREE.Vector3[];
 }
 
-const MAX_ZOOM = 50000000;
+const MAX_ZOOM = 500000;
 const getMinZoom = (planetName: string | null) => {
   switch (planetName) {
-    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 5;
-    case "Venus": case "Earth": return 35;
-    case "Mars": return 20;
-    case "Uranus": case "Neptune": return 250;
-    case "Jupiter": case "Saturn": return 400;
-    default: return 3400;
+    case "Pluto": case "Mercury": case "Eris": case "Ceres": case "Haumea": case "Makemake": return 0.5;
+    case "Venus": case "Earth": return 3.5;
+    case "Mars": return 2.0;
+    case "Uranus": case "Neptune": return 25.0;
+    case "Jupiter": case "Saturn": return 40.0;
+    default: return 340.0;
   }
 };
 
@@ -40,7 +40,7 @@ export function CameraControls({
   followedPlanet,
   rotationRef,
   zoomDistanceRef,
-  updateCameraRef, // Nueva prop para sincronizar con SolarSystemScene
+  updateCameraRef,
 }: {
   cameraRef: React.RefObject<THREE.PerspectiveCamera | null>;
   sunRef: React.RefObject<THREE.Object3D | null>;
@@ -49,7 +49,7 @@ export function CameraControls({
   followedPlanet: string | null;
   rotationRef: React.RefObject<{ x: number; y: number; z: number }>;
   zoomDistanceRef: React.RefObject<number>;
-  updateCameraRef: React.MutableRefObject<(() => void) | null>;
+  updateCameraRef: React.RefObject<(() => void) | null>;
 }) {
   useEffect(() => {
     if (!sliderRef || !sliderRef.current) return;
@@ -64,7 +64,7 @@ export function CameraControls({
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
     } else {
-      zoomDistanceRef.current = 3400; // Reestablecer a 3400 cuando se sigue al Sol
+      zoomDistanceRef.current = 620; 
     }
 
     let isDragging = false;
@@ -104,7 +104,7 @@ export function CameraControls({
 
     const onScroll = (event: WheelEvent) => {
       const minZoom = getMinZoom(followedPlanet);
-      const zoomSpeed = zoomDistanceRef.current * 0.002;
+      const zoomSpeed = zoomDistanceRef.current * 0.001;
       zoomDistanceRef.current += event.deltaY * zoomSpeed;
       zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
     };

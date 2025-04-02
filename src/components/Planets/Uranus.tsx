@@ -4,7 +4,7 @@ export const Uranus = () => {
   const textureLoader = new THREE.TextureLoader();
   const uranusTexture = textureLoader.load("/textures/uranus.jpg");
 
-  const uranusGeometry = new THREE.SphereGeometry(73);
+  const uranusGeometry = new THREE.SphereGeometry(7.3);
   const uranusMaterial = new THREE.MeshPhongMaterial({
     map: uranusTexture,
     shininess: 5,
@@ -18,10 +18,10 @@ export const Uranus = () => {
 
   // Anillo de Urano 
   const asteroidGeometry = new THREE.BufferGeometry();
-  const numAsteroids = 8000; 
-  const innerRadius = 200;  
-  const middleRadius = 230; 
-  const outerRadius = 250;  
+  const numAsteroids = 4000; 
+  const innerRadius = 20;  
+  const middleRadius = 23; 
+  const outerRadius = 25;  
   const asteroidVertices = [];
   const asteroidColors = [];
   const color = new THREE.Color();
@@ -59,7 +59,7 @@ export const Uranus = () => {
 
   const asteroidMaterial = new THREE.PointsMaterial({
     vertexColors: true,
-    size: 2,
+    size: 0.3,
   });
 
   const asteroidRing = new THREE.Points(asteroidGeometry, asteroidMaterial);
