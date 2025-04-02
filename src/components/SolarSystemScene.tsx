@@ -17,6 +17,7 @@ import { Eris } from "./Planets/Eris";
 import { Ceres } from "./Planets/Ceres";
 import { Haumea } from "./Planets/Haumea";
 import { Makemake } from "./Planets/Makemake";
+import { Galaxies } from "./Space/Galaxies";
 
 interface Planet {
   name: string;
@@ -44,6 +45,7 @@ export function SolarSystemScene({
   setIsLoading,
   updateSpritesRef,
   updateCameraRef,
+
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.RefObject<THREE.Scene | null>;
@@ -91,6 +93,9 @@ export function SolarSystemScene({
 
     const stars = Stars();
     scene.add(stars);
+
+    const galaxies = Galaxies();
+    scene.add(galaxies);
 
     const planets: Planet[] = [
       { name: "Mercury", angle: 19, speed: 0.004, mesh: Mercury(), a: 1664, e: 0.2056, inclination: 7.00, orbitPoints: [] },
@@ -223,7 +228,7 @@ export function SolarSystemScene({
         updateSpritesRef.current();
       }
       if (updateCameraRef.current) {
-        updateCameraRef.current(); 
+        updateCameraRef.current();
       }
       renderer.render(scene, camera);
       if (!hasRenderedFirstFrame) {
