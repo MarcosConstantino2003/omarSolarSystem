@@ -123,7 +123,7 @@ export function PlanetLabels({
           const baseScale = 40;
           const distance = camera.position.distanceTo(sprite.position);
 
-          const scaleFactor = Math.max(getMinZoom(planet.name) * 1.5, distance * 0.016);
+          const scaleFactor = Math.max(2, distance * 0.016);
           sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
         }
       });
