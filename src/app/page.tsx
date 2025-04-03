@@ -27,7 +27,7 @@ const getMinZoom = (planetName: string | null) => {
     case "Mars": return 2.0;
     case "Uranus": case "Neptune": return 25.0;
     case "Jupiter": case "Saturn": return 40.0;
-    default: return 340.0;
+    default: return 2000.0;
   }
 };
 
@@ -35,6 +35,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef<HTMLDivElement>(null!);
   const sliderRef = useRef<HTMLInputElement>(null!);
+  const timeScaleSliderRef = useRef<HTMLInputElement>(null!);
+  const timeScaleFactorRef = useRef<number>(7);
+  const [timeScaleLabel, setTimeScaleLabel] = useState("1 semana/segundo");
   const [followedPlanet, setFollowedPlanet] = useState<string | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -58,6 +61,42 @@ export default function Home() {
     const minZoom = getMinZoom(followedPlanet);
     zoomDistanceRef.current = minZoom + (MAX_ZOOM - minZoom) * (1 - sliderValue / 100);
     if (sliderRef.current) sliderRef.current.value = String(sliderValue);
+  };
+
+  // Definir las 9 velocidades
+  const timeScaleFactors = [
+    1 / 86400, // Tiempo real
+    1 / 1440,  // 1 minuto/segundo
+    1 / 24,    // 1 hora/segundo
+    1,         // 1 día/segundo
+    7,         // 1 semana/segundo
+    30,        // 1 mes/segundo
+    90,        // 3 meses/segundo
+    180,       // 6 meses/segundo
+    365.25,    // 1 año/segundo
+    730.5,     // 2 años/segundo (365.25 * 2)
+    1095.75,   // 3 años/segundo (365.25 * 3)
+    1826.25,   // 5 años/segundo (365.25 * 5)
+  ];
+
+  const timeScaleLabels = [
+    "Tiempo real",
+    "1 minuto/segundo",
+    "1 hora/segundo",
+    "1 día/segundo",
+    "1 semana/segundo",
+    "1 mes/segundo",
+    "3 meses/segundo",
+    "6 meses/segundo",
+    "1 año/segundo",
+    "2 años/segundo",
+    "3 años/segundo",
+    "5 años/segundo",
+  ];
+
+  const handleTimeScaleChange = (value: number) => {
+    timeScaleFactorRef.current = timeScaleFactors[value];
+    setTimeScaleLabel(timeScaleLabels[value]); // Actualizar el texto
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -141,6 +180,7 @@ export default function Home() {
           followedPlanet={followedPlanet}
           updateSpritesRef={updateSpritesRef}
           updateCameraRef={updateCameraRef}
+          timeScaleFactorRef={timeScaleFactorRef}
         />
         <CameraControls
           cameraRef={cameraRef}
@@ -273,6 +313,24 @@ export default function Home() {
             />
             <div onClick={(e) => e.stopPropagation()}>Nombres de planetas</div>
           </label>
+          </div>
+        {/* Contenedor para el slider de velocidad y el texto */}
+        <div className="time-scale-container absolute bottom-8 left-1/2 transform -translate-x-1/2 w-64">
+          <div className="time-scale-label text-center text-white font-mono text-lg mb-2">
+            {timeScaleLabel}
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="11"
+            defaultValue="4"
+            ref={timeScaleSliderRef}
+            onChange={(e) => {
+              e.stopPropagation();
+              handleTimeScaleChange(Number(e.target.value));
+            }}
+            className="time-scale-slider w-full"
+          />
         </div>
       </div>
     </>

@@ -22,7 +22,7 @@ const getMinZoom = (planetName: string | null) => {
     case "Mars": return 2.0;
     case "Uranus": case "Neptune": return 25.0;
     case "Jupiter": case "Saturn": return 40.0;
-    default: return 340.0;
+    default: return 2000.0;
   }
 };
 
@@ -64,7 +64,7 @@ export function CameraControls({
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
     } else {
-      zoomDistanceRef.current = 620; 
+      zoomDistanceRef.current = 2000; 
     }
 
     let isDragging = false;

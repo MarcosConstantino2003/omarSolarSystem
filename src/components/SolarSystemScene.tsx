@@ -27,7 +27,7 @@ interface Planet {
   inclination: number;
   a: number;
   e: number;
-  orbitPoints: THREE.Vector3[]; // Puntos precalculados de la órbita
+  orbitPoints: THREE.Vector3[];
 }
 
 const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
@@ -45,7 +45,7 @@ export function SolarSystemScene({
   setIsLoading,
   updateSpritesRef,
   updateCameraRef,
-
+  timeScaleFactorRef, // Nuevo Ref para el factor de escala
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.RefObject<THREE.Scene | null>;
@@ -63,6 +63,7 @@ export function SolarSystemScene({
   followedPlanet: string | null;
   updateSpritesRef: React.RefObject<(() => void) | null>;
   updateCameraRef: React.RefObject<(() => void) | null>;
+  timeScaleFactorRef: React.RefObject<number>; // Añadido
 }) {
   useEffect(() => {
     if (!canvasRef || !canvasRef.current) return;
@@ -98,19 +99,19 @@ export function SolarSystemScene({
     scene.add(galaxies);
 
     const planets: Planet[] = [
-      { name: "Mercury", angle: 19, speed: 0.004, mesh: Mercury(), a: 1664, e: 0.2056, inclination: 7.00, orbitPoints: [] },
-      { name: "Venus", angle: 16, speed: 0.0035, mesh: Venus(), a: 3109, e: 0.0068, inclination: 3.39, orbitPoints: [] },
-      { name: "Earth", angle: 13, speed: 0.003, mesh: Earth(), a: 4298, e: 0.0167, inclination: 0.00, orbitPoints: [] },
-      { name: "Mars", angle: 11, speed: 0.0025, mesh: Mars(), a: 6547, e: 0.0934, inclination: 1.85, orbitPoints: [] },
-      { name: "Jupiter", angle: 147, speed: 0.0015, mesh: Jupiter(), a: 22371, e: 0.0484, inclination: 1.31, orbitPoints: [] },
-      { name: "Saturn", angle: 4, speed: 0.001, mesh: Saturn(), a: 41186, e: 0.0556, inclination: 2.49, orbitPoints: [] },
-      { name: "Uranus", angle: 2, speed: 0.0006, mesh: Uranus(), a: 82550, e: 0.0472, inclination: 0.77, orbitPoints: [] },
-      { name: "Neptune", angle: 1, speed: 0.0004, mesh: Neptune(), a: 129276, e: 0.0086, inclination: 1.77, orbitPoints: [] },
-      { name: "Pluto", angle: 0, speed: 0.0002, mesh: Pluto(), a: 169716, e: 0.2488, inclination: 17.14, orbitPoints: [] },
-      { name: "Eris", angle: 0, speed: 0.0002, mesh: Eris(), a: 290800, e: 0.436, inclination: 44, orbitPoints: [] },
-      { name: "Ceres", angle: 0, speed: 0.0025, mesh: Ceres(), a: 11896, e: 0.075, inclination: 10.7, orbitPoints: [] },
-      { name: "Haumea", angle: 2, speed: 0.0002, mesh: Haumea(), a: 185398, e: 0.195, inclination: 28.2, orbitPoints: [] },
-      { name: "Makemake", angle: 16, speed: 0.0002, mesh: Makemake(), a: 196834, e: 0.159, inclination: 29, orbitPoints: [] },
+      { name: "Mercury", angle: 19, speed: (2 * Math.PI) / (60 * 88), mesh: Mercury(), a: 1664, e: 0.2056, inclination: 7.00, orbitPoints: [] },
+      { name: "Venus", angle: 16, speed: (2 * Math.PI) / (60 * 225), mesh: Venus(), a: 3109, e: 0.0068, inclination: 3.39, orbitPoints: [] },
+      { name: "Earth", angle: 13, speed: (2 * Math.PI) / (60 * 365.25), mesh: Earth(), a: 4298, e: 0.0167, inclination: 0.00, orbitPoints: [] },
+      { name: "Mars", angle: 11, speed: (2 * Math.PI) / (60 * 687), mesh: Mars(), a: 6547, e: 0.0934, inclination: 1.85, orbitPoints: [] },
+      { name: "Jupiter", angle: 147, speed: (2 * Math.PI) / (60 * 4333), mesh: Jupiter(), a: 22371, e: 0.0484, inclination: 1.31, orbitPoints: [] },
+      { name: "Saturn", angle: 4, speed: (2 * Math.PI) / (60 * 10759), mesh: Saturn(), a: 41186, e: 0.0556, inclination: 2.49, orbitPoints: [] },
+      { name: "Uranus", angle: 2, speed: (2 * Math.PI) / (60 * 30687), mesh: Uranus(), a: 82550, e: 0.0472, inclination: 0.77, orbitPoints: [] },
+      { name: "Neptune", angle: 1, speed: (2 * Math.PI) / (60 * 59800), mesh: Neptune(), a: 129276, e: 0.0086, inclination: 1.77, orbitPoints: [] },
+      { name: "Pluto", angle: 0, speed: (2 * Math.PI) / (60 * 90560), mesh: Pluto(), a: 169716, e: 0.2488, inclination: 17.14, orbitPoints: [] },
+      { name: "Eris", angle: 0, speed: (2 * Math.PI) / (60 * 203670), mesh: Eris(), a: 290800, e: 0.436, inclination: 44, orbitPoints: [] },
+      { name: "Ceres", angle: 0, speed: (2 * Math.PI) / (60 * 1682), mesh: Ceres(), a: 11896, e: 0.075, inclination: 10.7, orbitPoints: [] },
+      { name: "Haumea", angle: 2, speed: (2 * Math.PI) / (60 * 103774), mesh: Haumea(), a: 185398, e: 0.195, inclination: 28.2, orbitPoints: [] },
+      { name: "Makemake", angle: 16, speed: (2 * Math.PI) / (60 * 111957), mesh: Makemake(), a: 196834, e: 0.159, inclination: 29, orbitPoints: [] },
     ];
 
     planets.forEach(planet => {
@@ -148,6 +149,14 @@ export function SolarSystemScene({
       previousY = 0;
 
     const onMouseDown = (event: MouseEvent) => {
+      const zoomSlider = document.querySelector(".zoom-slider");
+      const timeScaleSlider = document.querySelector(".time-scale-slider");
+      if (
+        (zoomSlider && zoomSlider.contains(event.target as Node)) ||
+        (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
+      ) {
+        return; // No procesar clics en los sliders
+      }
       isDragging = true;
       previousX = event.clientX;
       previousY = event.clientY;
@@ -157,6 +166,14 @@ export function SolarSystemScene({
       if (!isDragging) return;
       const deltaX = event.clientX - previousX;
       const deltaY = event.clientY - previousY;
+      const zoomSlider = document.querySelector(".zoom-slider");
+      const timeScaleSlider = document.querySelector(".time-scale-slider");
+      if (
+        (zoomSlider && zoomSlider.contains(event.target as Node)) ||
+        (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
+      ) {
+        return; // No procesar clics en los sliders
+      }
       rotationRef.current.x -= deltaX * 0.002;
       rotationRef.current.y += deltaY * 0.002;
       rotationRef.current.y = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, rotationRef.current.y));
@@ -169,6 +186,14 @@ export function SolarSystemScene({
     };
 
     const onClick = (event: MouseEvent) => {
+      const zoomSlider = document.querySelector(".zoom-slider");
+      const timeScaleSlider = document.querySelector(".time-scale-slider");
+      if (
+        (zoomSlider && zoomSlider.contains(event.target as Node)) ||
+        (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
+      ) {
+        return; // No procesar clics en los sliders
+      }
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
@@ -203,25 +228,24 @@ export function SolarSystemScene({
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach(({ mesh, speed, orbitPoints }) => {
-        // Actualizar el ángulo
-        mesh.userData.angle = (mesh.userData.angle ?? 0) + speed;
-        if (mesh.userData.angle > 2 * Math.PI) mesh.userData.angle -= 2 * Math.PI;
+        // Usar el factor de escala dinámico desde el Ref
+        const timeScaleFactor = timeScaleFactorRef.current ?? 7; // Valor por defecto 7 si no está definido
+        const scaledSpeed = speed * timeScaleFactor;
 
-        // Calcular índice fraccional para interpolación
+        mesh.userData.angle = (mesh.userData.angle ?? 0) - scaledSpeed;
+        if (mesh.userData.angle < 0) mesh.userData.angle += 2 * Math.PI;
+        
         const t = (mesh.userData.angle / (2 * Math.PI)) * (orbitPoints.length - 1);
         const index = Math.floor(t);
-        const fraction = t - index; // Parte fraccional entre 0 y 1
+        const fraction = t - index;
 
-        // Obtener los dos puntos adyacentes
         const point1 = orbitPoints[index];
-        const point2 = orbitPoints[(index + 1) % orbitPoints.length]; // Usar módulo para cerrar la órbita
-
-        // Interpolar entre point1 y point2
+        const point2 = orbitPoints[(index + 1) % orbitPoints.length];
         const interpolatedPosition = point1.clone().lerp(point2, fraction);
         mesh.position.copy(interpolatedPosition);
 
-        // Rotación del planeta sobre su eje
-        mesh.rotation.y += 0.002;
+        // Rotación del planeta sobre su eje, escalada con timeScaleFactor
+        mesh.rotation.y += 0.002 * (timeScaleFactor / 7); // Normalizado respecto a la base
       });
 
       if (updateSpritesRef.current) {

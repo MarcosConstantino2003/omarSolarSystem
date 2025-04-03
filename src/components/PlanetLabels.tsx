@@ -60,13 +60,13 @@ export function PlanetLabels({
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const baseFontSize = 24; // Reducido para mejor proporción
+      const baseFontSize = 16;
       const sizeFactor = 1 + getMinZoom(planet.name)/100;
       const fontSize = baseFontSize * sizeFactor;
 
-      canvas.width = 1024; // Mayor resolución
-      canvas.height = 256;
-      ctx.scale(2, 2); // Escala para nitidez
+      canvas.width = 512; 
+      canvas.height = 128;
+      ctx.scale(2, 2); 
 
       ctx.fillStyle = "rgba(0, 0, 0, 0)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -123,7 +123,7 @@ export function PlanetLabels({
           const baseScale = 40;
           const distance = camera.position.distanceTo(sprite.position);
 
-          const scaleFactor = Math.max(2, distance * 0.016);
+          const scaleFactor = Math.max(2, distance * 0.010);
           sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
         }
       });

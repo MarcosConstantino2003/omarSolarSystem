@@ -181,37 +181,86 @@ body {
 /* Slider de zoom */
 .zoom-slider {
   writing-mode: bt-lr;
-  height: 8rem;
-  width: 1.5rem;
-  background: linear-gradient(to top, #210227, #ee10c5);
+  height: 8rem; /* Mantener la altura vertical */
+  width: 1rem;
+  background: linear-gradient(to top, #1a2a6c, #00b7eb); /* Gradiente azul: oscuro a claro */
   border-radius: 1rem;
-  transform: rotate(180deg);
   cursor: pointer;
   transition: all 0.3s ease;
+  transform: rotate(180deg);
+  -webkit-appearance: none; /* Asegurar que los estilos se apliquen */
 }
 
-/* Estilo del thumb */
 .zoom-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 1.8rem;
-  height: 1.8rem;
-  background: linear-gradient(to top, #746776, #ee10c5);
-  ;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(to top, #2c5282, #00b7eb); /* Gradiente azul para el thumb */
   border: 2px solid #000000;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
 }
 
+.zoom-slider::-webkit-slider-thumb:hover {
+  transition-duration: 0.2s;
+  scale: 1.1;
+
+}
+
 .zoom-slider::-moz-range-thumb {
-  width: 1.8rem;
-  height: 1.8rem;
-  background: #ffffff;
-  border: 2px solid #1e40af;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(to top, #2c5282, #00b7eb);
+  border: 2px solid #000000;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(194, 0, 0, 0.8);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
   transition: transform 0.2s ease;
+}
+
+
+.time-scale-slider {
+  width: 100%; /* Ocupa todo el contenedor */
+  height: 1rem;
+  background: linear-gradient(to right, #1a3c34, #2ecc71); /* Gradiente verde */
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-appearance: none; /* Asegurar que los estilos se apliquen en Webkit */
+}
+
+.time-scale-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(to right, #27ae60, #2ecc71);
+  border: 2px solid #000000;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.time-scale-slider::-webkit-slider-thumb:hover {
+  transition-duration: 0.2s;
+  scale: 1.1;
+}
+
+
+.time-scale-slider::-moz-range-thumb {
+  width: 1.8rem;
+  height: 1.8rem;
+  background: linear-gradient(to right, #27ae60, #2ecc71);
+  border: 2px solid #000000;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  transition: transform 0.2s ease;
+}
+
+/* Texto de la escala de tiempo */
+.time-scale-label {
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
 }
 
 /* Contact Info Button */
