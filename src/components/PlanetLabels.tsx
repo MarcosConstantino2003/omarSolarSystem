@@ -99,8 +99,6 @@ export function PlanetLabels({
       spriteElements.forEach(({ planet, sprite }) => {
         const isDwarf = dwarfPlanets.includes(planet.name);
         const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
-        const distanceToCamera = camera.position.distanceTo(planet.mesh.position);
-
         sprite.visible = shouldShow
 
         if (sprite.visible) {
@@ -120,12 +118,18 @@ export function PlanetLabels({
           targetPosition.y += offsetY;
           sprite.position.copy(targetPosition);
 
-          const baseScale = 40;
+          const baseScale = 20; // Reducimos el tamaño base para que sea más pequeño en general
           const distance = camera.position.distanceTo(sprite.position);
 
-          const scaleFactor = Math.max(2, distance * 0.010);
-          sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
-        }
+          if (planet.name === followedPlanet) {
+            // Tamaño fijo y pequeño para el planeta seguido
+            sprite.scale.set(10, 10 / 3, 1); // Fijo en 10 de ancho, ajustado en altura
+          } else {
+            // Tamaño dinámico para los no seguidos
+            const scaleFactor = Math.max(2, distance * 0.018);
+            sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
+           }
+           }
       });
     };
 
