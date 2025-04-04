@@ -485,9 +485,14 @@ body {
 
   /* Zoom Slider */
   .zoom-slider {
-    margin-bottom: 7rem;
+    margin-bottom: 9rem;
     height: 7rem;
   }
+
+  .time-scale-slider {
+    margin-bottom: 9rem;
+  }
+
 
 
 

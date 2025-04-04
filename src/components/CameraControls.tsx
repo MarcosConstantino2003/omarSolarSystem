@@ -22,7 +22,7 @@ const getMinZoom = (planetName: string | null) => {
     case "Mars": return 2.0;
     case "Uranus": case "Neptune": return 25.0;
     case "Jupiter": case "Saturn": return 40.0;
-    default: return 2000.0;
+    default: return 8000;
   }
 };
 
@@ -64,7 +64,7 @@ export function CameraControls({
       const minZoom = getMinZoom(followedPlanet);
       zoomDistanceRef.current = minZoom * 3;
     } else {
-      zoomDistanceRef.current = 2000; 
+      zoomDistanceRef.current = 8000; 
     }
 
     let isDragging = false;
@@ -110,6 +110,14 @@ export function CameraControls({
     };
 
     const onTouchStart = (event: TouchEvent) => {
+      const zoomSlider = document.querySelector(".zoom-slider");
+      const timeScaleSlider = document.querySelector(".time-scale-slider");
+      if (
+        (zoomSlider && zoomSlider.contains(event.target as Node)) ||
+        (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
+      ) {
+        return; 
+      }
       event.preventDefault();
       if (event.touches.length === 1) {
         isDragging = true;
@@ -124,6 +132,15 @@ export function CameraControls({
     };
 
     const onTouchMove = (event: TouchEvent) => {
+      const zoomSlider = document.querySelector(".zoom-slider");
+      const timeScaleSlider = document.querySelector(".time-scale-slider");
+      if (
+        (zoomSlider && zoomSlider.contains(event.target as Node)) ||
+        (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
+      ) {
+        return; 
+      }
+      
       if (!isDragging) return;
       event.preventDefault();
 

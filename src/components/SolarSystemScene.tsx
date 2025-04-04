@@ -155,7 +155,7 @@ export function SolarSystemScene({
         (zoomSlider && zoomSlider.contains(event.target as Node)) ||
         (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
       ) {
-        return; // No procesar clics en los sliders
+        return; 
       }
       isDragging = true;
       previousX = event.clientX;
@@ -172,7 +172,7 @@ export function SolarSystemScene({
         (zoomSlider && zoomSlider.contains(event.target as Node)) ||
         (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
       ) {
-        return; // No procesar clics en los sliders
+        return; 
       }
       rotationRef.current.x -= deltaX * 0.002;
       rotationRef.current.y += deltaY * 0.002;
@@ -192,7 +192,7 @@ export function SolarSystemScene({
         (zoomSlider && zoomSlider.contains(event.target as Node)) ||
         (timeScaleSlider && timeScaleSlider.contains(event.target as Node))
       ) {
-        return; // No procesar clics en los sliders
+        return; 
       }
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -228,8 +228,7 @@ export function SolarSystemScene({
     const animate = () => {
       requestAnimationFrame(animate);
       planets.forEach(({ mesh, speed, orbitPoints }) => {
-        // Usar el factor de escala dinámico desde el Ref
-        const timeScaleFactor = timeScaleFactorRef.current ?? 7; // Valor por defecto 7 si no está definido
+        const timeScaleFactor = timeScaleFactorRef.current ?? 7; 
         const scaledSpeed = speed * timeScaleFactor;
 
         mesh.userData.angle = (mesh.userData.angle ?? 0) - scaledSpeed;
@@ -244,8 +243,7 @@ export function SolarSystemScene({
         const interpolatedPosition = point1.clone().lerp(point2, fraction);
         mesh.position.copy(interpolatedPosition);
 
-        // Rotación del planeta sobre su eje, escalada con timeScaleFactor
-        mesh.rotation.y += 0.002 * (timeScaleFactor / 7); // Normalizado respecto a la base
+        mesh.rotation.y += 0.002 * (timeScaleFactor / 7); 
       });
 
       if (updateSpritesRef.current) {
