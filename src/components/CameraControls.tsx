@@ -22,7 +22,7 @@ const getMinZoom = (planetName: string | null) => {
     case "Mars": return 2.0;
     case "Uranus": case "Neptune": return 25.0;
     case "Jupiter": case "Saturn": return 40.0;
-    default: return 8000;
+    default: return 2400;
   }
 };
 
@@ -118,7 +118,6 @@ export function CameraControls({
       ) {
         return; 
       }
-      event.preventDefault();
       if (event.touches.length === 1) {
         isDragging = true;
         previousX = event.touches[0].clientX;
@@ -140,9 +139,8 @@ export function CameraControls({
       ) {
         return; 
       }
-      
+
       if (!isDragging) return;
-      event.preventDefault();
 
       if (event.touches.length === 1) {
         const deltaX = event.touches[0].clientX - previousX;
@@ -159,7 +157,7 @@ export function CameraControls({
         const deltaDistance = previousTouchDistance - currentTouchDistance;
 
         const minZoom = getMinZoom(followedPlanet);
-        const zoomSpeed = zoomDistanceRef.current * 0.001;
+        const zoomSpeed = zoomDistanceRef.current * 0.00001;
         zoomDistanceRef.current += deltaDistance * zoomSpeed * 20;
         zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
         previousTouchDistance = currentTouchDistance;

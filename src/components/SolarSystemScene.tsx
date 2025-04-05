@@ -45,7 +45,7 @@ export function SolarSystemScene({
   setIsLoading,
   updateSpritesRef,
   updateCameraRef,
-  timeScaleFactorRef, // Nuevo Ref para el factor de escala
+  timeScaleFactorRef, 
 }: {
   canvasRef: React.RefObject<HTMLDivElement> | null;
   sceneRef: React.RefObject<THREE.Scene | null>;
@@ -97,21 +97,22 @@ export function SolarSystemScene({
 
     const galaxies = Galaxies();
     scene.add(galaxies);
+    
 
     const planets: Planet[] = [
       { name: "Mercury", angle: 19, speed: (2 * Math.PI) / (60 * 88), mesh: Mercury(), a: 1664, e: 0.2056, inclination: 7.00, orbitPoints: [] },
       { name: "Venus", angle: 16, speed: (2 * Math.PI) / (60 * 225), mesh: Venus(), a: 3109, e: 0.0068, inclination: 3.39, orbitPoints: [] },
-      { name: "Earth", angle: 13, speed: (2 * Math.PI) / (60 * 365.25), mesh: Earth(), a: 4298, e: 0.0167, inclination: 0.00, orbitPoints: [] },
-      { name: "Mars", angle: 11, speed: (2 * Math.PI) / (60 * 687), mesh: Mars(), a: 6547, e: 0.0934, inclination: 1.85, orbitPoints: [] },
-      { name: "Jupiter", angle: 147, speed: (2 * Math.PI) / (60 * 4333), mesh: Jupiter(), a: 22371, e: 0.0484, inclination: 1.31, orbitPoints: [] },
-      { name: "Saturn", angle: 4, speed: (2 * Math.PI) / (60 * 10759), mesh: Saturn(), a: 41186, e: 0.0556, inclination: 2.49, orbitPoints: [] },
-      { name: "Uranus", angle: 2, speed: (2 * Math.PI) / (60 * 30687), mesh: Uranus(), a: 82550, e: 0.0472, inclination: 0.77, orbitPoints: [] },
-      { name: "Neptune", angle: 1, speed: (2 * Math.PI) / (60 * 59800), mesh: Neptune(), a: 129276, e: 0.0086, inclination: 1.77, orbitPoints: [] },
-      { name: "Pluto", angle: 0, speed: (2 * Math.PI) / (60 * 90560), mesh: Pluto(), a: 169716, e: 0.2488, inclination: 17.14, orbitPoints: [] },
-      { name: "Eris", angle: 0, speed: (2 * Math.PI) / (60 * 203670), mesh: Eris(), a: 290800, e: 0.436, inclination: 44, orbitPoints: [] },
+      { name: "Earth", angle: 13, speed: (2 * Math.PI) / (60 * 365.25), mesh: Earth({timeScaleFactorRef}), a: 4298, e: 0.0167, inclination: 0.00, orbitPoints: [] },
+      { name: "Mars", angle: 11, speed: (2 * Math.PI) / (60 * 687), mesh: Mars({timeScaleFactorRef}), a: 6547, e: 0.0934, inclination: 1.85, orbitPoints: [] },
+      { name: "Jupiter", angle: 147, speed: (2 * Math.PI) / (60 * 4333), mesh: Jupiter({timeScaleFactorRef}), a: 22371, e: 0.0484, inclination: 1.31, orbitPoints: [] },
+      { name: "Saturn", angle: 4, speed: (2 * Math.PI) / (60 * 10759), mesh: Saturn({timeScaleFactorRef}), a: 41186, e: 0.0556, inclination: 2.49, orbitPoints: [] },
+      { name: "Uranus", angle: 2, speed: (2 * Math.PI) / (60 * 30687), mesh: Uranus({timeScaleFactorRef}), a: 82550, e: 0.0472, inclination: 0.77, orbitPoints: [] },
+      { name: "Neptune", angle: 1, speed: (2 * Math.PI) / (60 * 59800), mesh: Neptune({timeScaleFactorRef}), a: 129276, e: 0.0086, inclination: 1.77, orbitPoints: [] },
+      { name: "Pluto", angle: 0, speed: (2 * Math.PI) / (60 * 90560), mesh: Pluto({timeScaleFactorRef}), a: 169716, e: 0.2488, inclination: 17.14, orbitPoints: [] },
+      { name: "Eris", angle: 200, speed: (2 * Math.PI) / (60 * 203670), mesh: Eris({timeScaleFactorRef}), a: 290800, e: 0.436, inclination: 44, orbitPoints: [] },
       { name: "Ceres", angle: 0, speed: (2 * Math.PI) / (60 * 1682), mesh: Ceres(), a: 11896, e: 0.075, inclination: 10.7, orbitPoints: [] },
-      { name: "Haumea", angle: 2, speed: (2 * Math.PI) / (60 * 103774), mesh: Haumea(), a: 185398, e: 0.195, inclination: 28.2, orbitPoints: [] },
-      { name: "Makemake", angle: 16, speed: (2 * Math.PI) / (60 * 111957), mesh: Makemake(), a: 196834, e: 0.159, inclination: 29, orbitPoints: [] },
+      { name: "Haumea", angle: 72, speed: (2 * Math.PI) / (60 * 103774), mesh: Haumea({timeScaleFactorRef}), a: 185398, e: 0.195, inclination: 28.2, orbitPoints: [] },
+      { name: "Makemake", angle: 116, speed: (2 * Math.PI) / (60 * 111957), mesh: Makemake({timeScaleFactorRef}), a: 196834, e: 0.159, inclination: 29, orbitPoints: [] },
     ];
 
     planets.forEach(planet => {

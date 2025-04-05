@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export const Earth = () => {
+export const Earth = ({ timeScaleFactorRef }: { timeScaleFactorRef?: React.RefObject<number> }) => {
   const textureLoader = new THREE.TextureLoader();
 
   // Tierra
@@ -17,8 +17,8 @@ export const Earth = () => {
   earthMesh.receiveShadow = true;
 
   // Luna
-  const moonTexture = textureLoader.load("/textures/moon.jpg");
-  const moonGeometry = new THREE.SphereGeometry(0.5); 
+  const moonTexture = textureLoader.load("/textures/moons/moon.jpg");
+  const moonGeometry = new THREE.SphereGeometry(0.5);
   const moonMaterial = new THREE.MeshPhongMaterial({
     map: moonTexture,
     shininess: 5,
@@ -29,28 +29,27 @@ export const Earth = () => {
   moonMesh.castShadow = true;
   moonMesh.receiveShadow = true;
 
-  //  Grupo Tierra + Luna
+  // Grupo Tierra + Luna
   const earthGroup = new THREE.Group();
   earthGroup.add(earthMesh);
   earthGroup.add(moonMesh);
 
-  // Parámetros de la órbita lunar
   let moonAngle = 0;
-  const moonOrbitRadius = 10; 
-  const moonOrbitSpeed = 0.01; 
+  const moonOrbitRadius = 10;
+  const baseMoonOrbitSpeed = 0.002; 
 
-  // Animación de la Luna
   const animate = () => {
-    moonAngle += moonOrbitSpeed;
+    const timeScaleFactor = timeScaleFactorRef?.current ?? 7; 
+    const scaledMoonOrbitSpeed = baseMoonOrbitSpeed * timeScaleFactor; 
+
+    moonAngle += scaledMoonOrbitSpeed;
     if (moonAngle > 2 * Math.PI) moonAngle -= 2 * Math.PI;
 
-    // Posición de la Luna en una órbita circular (puede hacerse elíptica si querés)
     const moonX = Math.cos(moonAngle) * moonOrbitRadius;
     const moonZ = Math.sin(moonAngle) * moonOrbitRadius;
-    moonMesh.position.set(moonX, 0, moonZ); 
+    moonMesh.position.set(moonX, 0, moonZ);
 
-    // Rotación de la Luna 
-    moonMesh.rotation.y += 0.0002;
+    moonMesh.rotation.y += 0.0002 * timeScaleFactor; // También escalar la rotación de la Luna
 
     requestAnimationFrame(animate);
   };

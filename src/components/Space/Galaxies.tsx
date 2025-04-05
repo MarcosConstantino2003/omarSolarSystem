@@ -37,7 +37,7 @@ const createGalaxyTexture = () => {
         color: 0xccccff, // Tinte azulado
         transparent: true,
         blending: THREE.AdditiveBlending,
-        depthTest: false,
+        depthTest: true,
       });
   
       const sprite = new THREE.Sprite(material);

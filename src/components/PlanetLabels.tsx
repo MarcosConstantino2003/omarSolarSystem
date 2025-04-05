@@ -21,7 +21,18 @@ const getMinZoom = (planetName: string | null) => {
     case "Mars": return 2.0;
     case "Uranus": case "Neptune": return 25.0;
     case "Jupiter": case "Saturn": return 40.0;
-    default: return 8000;
+    default: return 340.0;
+  }
+};
+
+const getMoonOffsetY = (moonName: string) => {
+  switch (moonName) {
+    case "Phobos": case "Deimos": case "Namaka": case "MK2": case "Charon": case "Enceladus": return 0.5;
+    case "Moon": case "Mimas": case "Miranda": case "Proteus": case "Hiiaka": case "Rhea": case "Tethys": case "Iapetus": return 1;
+    case "Ariel": case "Umbriel": return 2;
+    case "Dhione": case "Io": case "Europa": case "Ganymede": case "Oberon": case "Titania": case "Triton": return 3;
+    case "Callisto": case "Titan": return 5;
+    default: return 0.5;
   }
 };
 
@@ -53,20 +64,62 @@ export function PlanetLabels({
     if (!scene || !camera || !planets) return;
 
     const dwarfPlanets = ["Pluto", "Eris", "Ceres", "Haumea", "Makemake"];
-    const spriteElements: { planet: Planet; sprite: THREE.Sprite }[] = [];
+    const spriteElements: { object: THREE.Object3D; sprite: THREE.Sprite; name: string; isMoon: boolean; parentPlanet?: string }[] = [];
 
-    planets.forEach(planet => {
+    const moonNames: { [key: string]: string } = {
+      Moon: "Luna",
+      Phobos: "Phobos",
+      Deimos: "Deimos",
+      Charon: "Caronte",
+      Io: "Io",
+      Europa: "Europa",
+      Ganymede: "Ganímedes",
+      Callisto: "Calisto",
+      Titan: "Titán",
+      Rhea: "Rea",
+      Iapetus: "Jápeto",
+      Dione: "Dione",
+      Tethys: "Tetis",
+      Enceladus: "Encélado",
+      Mimas: "Mimas",
+      Titania: "Titania",
+      Oberon: "Oberón",
+      Umbriel: "Umbriel",
+      Ariel: "Ariel",
+      Miranda: "Miranda",
+      Triton: "Tritón",
+      Proteus: "Proteo",
+      Hiiaka: "Hiʻiaka",
+      Namaka: "Namaka",
+      MK2: "MK2",
+      Dysnomia: "Disnomia",
+    };
+
+    const moonLabelSizeByPlanet: { [key: string]: number } = {
+      Pluto: 1,
+      Mars: 2,
+      Earth: 2,
+      Jupiter: 30,
+      Saturn: 6,
+      Uranus: 8,
+      Neptune: 6,
+      Haumea: 2,
+      Makemake: 1,
+      Eris: 1,
+    };
+
+    const createSprite = (name: string, object: THREE.Object3D, isMoon: boolean, parentPlanet?: string) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const baseFontSize = 16;
-      const sizeFactor = 1 + getMinZoom(planet.name)/100;
+      const baseFontSize = isMoon ? 8 : 16;
+      const sizeFactor = 1 + getMinZoom(name) / 100;
       const fontSize = baseFontSize * sizeFactor;
 
-      canvas.width = 512; 
+      canvas.width = 512;
       canvas.height = 128;
-      ctx.scale(2, 2); 
+      ctx.scale(2, 2);
 
       ctx.fillStyle = "rgba(0, 0, 0, 0)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -74,62 +127,126 @@ export function PlanetLabels({
       ctx.font = `${fontSize}px 'VT323', monospace`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      const displayName = isMoon ? moonNames[name] : planetNames[name];
+      ctx.fillText(displayName, canvas.width / 4, canvas.height / 4);
       ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
       ctx.shadowBlur = 5;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.fillText(displayName, canvas.width / 4, canvas.height / 4);
       ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
       ctx.shadowBlur = 10;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.fillText(displayName, canvas.width / 4, canvas.height / 4);
       ctx.shadowBlur = 0;
-      ctx.fillText(planetNames[planet.name], canvas.width / 4, canvas.height / 4);
+      ctx.fillText(displayName, canvas.width / 4, canvas.height / 4);
 
       const texture = new THREE.CanvasTexture(canvas);
       const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
       const sprite = new THREE.Sprite(material);
 
-      sprite.position.copy(planet.mesh.position);
-      sprite.userData = { planetName: planet.name };
+      sprite.position.copy(object.position);
+      sprite.userData = { name, isMoon, parentPlanet };
 
-      spriteElements.push({ planet, sprite });
+      spriteElements.push({ object, sprite, name, isMoon, parentPlanet });
       scene.add(sprite);
+    };
+
+    planets.forEach(planet => {
+      console.log(`Planeta: ${planet.name}, es Group: ${planet.mesh instanceof THREE.Group}, hijos: ${planet.mesh.children?.length}`);
+      createSprite(planet.name, planet.mesh, false);
+
+      if (planet.mesh instanceof THREE.Group) {
+        planet.mesh.children.forEach((child, index) => {
+          if (index > 0) { // Excluir el planeta (primer hijo)
+            let moonName: string;
+            switch (planet.name) {
+              case "Earth":
+                moonName = "Moon";
+                break;
+              case "Mars":
+                moonName = index === 1 ? "Phobos" : "Deimos";
+                break;
+              case "Pluto":
+                moonName = "Charon";
+                break;
+              case "Jupiter":
+                moonName = ["Io", "Europa", "Ganymede", "Callisto"][index - 1];
+                break;
+              case "Saturn":
+                moonName = ["Titan", "Rhea", "Iapetus", "Dione", "Tethys", "Enceladus", "Mimas"][index - 2];
+                break;
+              case "Uranus":
+                if (index === 1) return; // Saltar asteroidRing
+                moonName = ["Titania", "Oberon", "Umbriel", "Ariel", "Miranda"][index - 2];
+                break;
+              case "Neptune":
+                moonName = ["Triton", "Proteus"][index - 1];
+                break;
+              case "Haumea":
+                moonName = ["Hiiaka", "Namaka"][index - 1];
+                break;
+              case "Makemake":
+                moonName = "MK2";
+                break;
+              case "Eris":
+                moonName = "Dysnomia";
+                break;
+              default:
+                return;
+            }
+            console.log(`Creando luna: ${moonName} para ${planet.name}`);
+            createSprite(moonName, child, true, planet.name);
+          }
+        });
+      }
     });
 
+    console.log("Sprites creados:", spriteElements.map(se => ({ name: se.name, isMoon: se.isMoon, parentPlanet: se.parentPlanet })));
+
     const updateSprites = () => {
-      spriteElements.forEach(({ planet, sprite }) => {
-        const isDwarf = dwarfPlanets.includes(planet.name);
-        const shouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
-        sprite.visible = shouldShow
+      spriteElements.forEach(({ object, sprite, name, isMoon, parentPlanet }) => {
+        const isDwarf = dwarfPlanets.includes(name); // Si el objeto actual es un planeta enano
+        const isParentDwarf = parentPlanet && dwarfPlanets.includes(parentPlanet); // Si el planeta padre es enano
+
+        // Visibilidad para planetas
+        const planetShouldShow = showPlanetNames && (!isDwarf || showDwarfOrbits);
+        // Visibilidad para lunas: solo se muestran si el planeta seguido es el padre y, si es enano, las órbitas de enanos están activadas
+        const moonShouldShow = showPlanetNames && followedPlanet === parentPlanet && (!isParentDwarf || showDwarfOrbits);
+
+        // Aplicar la visibilidad según si es luna o planeta
+        sprite.visible = isMoon ? moonShouldShow : planetShouldShow;
 
         if (sprite.visible) {
-          let offsetY: number;
+          let offsetY = isMoon ? getMoonOffsetY(name) : (followedPlanet === name ? getMinZoom(name) * 1.1 + 2 : getMinZoom(name) + 5);
+          if (!followedPlanet && !isMoon) offsetY = getMinZoom(name) + 20;
 
-          if (followedPlanet) {
-            if (planet.name === followedPlanet) {
-              offsetY = getMinZoom(planet.name) * 1.1 + 2; 
-            } else {
-              offsetY = getMinZoom(planet.name) + 5; 
-            }
-          } else {
-            offsetY = getMinZoom(planet.name) + 20; 
-          }
-
-          const targetPosition = planet.mesh.position.clone();
+          // Usar posición global del objeto (planeta o luna)
+          const targetPosition = new THREE.Vector3();
+          object.getWorldPosition(targetPosition);
           targetPosition.y += offsetY;
           sprite.position.copy(targetPosition);
 
-          const baseScale = 20; // Reducimos el tamaño base para que sea más pequeño en general
+          const baseScale = 20;
+          const followedBaseScale = 5 + getMinZoom(name) * 2;
           const distance = camera.position.distanceTo(sprite.position);
+          const scaleFactor = Math.max(1, distance * 0.015);
+          const distanceThreshold = 500;
 
-          if (planet.name === followedPlanet) {
-            // Tamaño fijo y pequeño para el planeta seguido
-            sprite.scale.set(10, 10 / 3, 1); // Fijo en 10 de ancho, ajustado en altura
+          const isFollowed = name === followedPlanet || (isMoon && parentPlanet === followedPlanet);
+
+          if (isFollowed) {
+            let scale;
+            if (isMoon && parentPlanet) {
+              const moonBaseScale = moonLabelSizeByPlanet[parentPlanet] || 2;
+              scale = distance < distanceThreshold ? moonBaseScale : (baseScale * scaleFactor) / 4;
+            } else {
+              scale = distance < distanceThreshold ? followedBaseScale : baseScale * scaleFactor;
+            }
+            sprite.scale.set(scale, scale / 3, 1);
           } else {
-            // Tamaño dinámico para los no seguidos
-            const scaleFactor = Math.max(2, distance * 0.018);
-            sprite.scale.set(baseScale * scaleFactor, baseScale * scaleFactor / 3, 1);
-           }
-           }
+            sprite.scale.set(baseScale * scaleFactor, (baseScale * scaleFactor) / 3, 1);
+          }
+
+          console.log(`Sprite ${name} - Posición:`, sprite.position, `Escala:`, sprite.scale, `Distancia:`, distance);
+        }
       });
     };
 
@@ -146,8 +263,10 @@ export function PlanetLabels({
       const intersects = raycaster.intersectObjects(spriteElements.map(se => se.sprite));
       if (intersects.length > 0) {
         const clickedSprite = intersects[0].object as THREE.Sprite;
-        const planetName = clickedSprite.userData.planetName;
-        setFollowedPlanet(planetName);
+        const spriteData = spriteElements.find(se => se.sprite === clickedSprite);
+        if (spriteData && !spriteData.isMoon) {
+          setFollowedPlanet(spriteData.name);
+        }
       }
     };
 
