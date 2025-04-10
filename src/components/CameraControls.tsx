@@ -118,7 +118,7 @@ export function CameraControls({
       ) {
         return; 
       }
-      if (event.touches.length >= 1) {
+      if (event.touches.length === 1) {
         event.preventDefault();
         isDragging = true;
         previousX = event.touches[0].clientX;
