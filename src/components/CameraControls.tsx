@@ -157,7 +157,7 @@ export function CameraControls({
         const deltaDistance = previousTouchDistance - currentTouchDistance;
 
         const minZoom = getMinZoom(followedPlanet);
-        const zoomSpeed = zoomDistanceRef.current * 0.00001;
+        const zoomSpeed = zoomDistanceRef.current * 0.0001;
         zoomDistanceRef.current += deltaDistance * zoomSpeed * 20;
         zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
         previousTouchDistance = currentTouchDistance;
