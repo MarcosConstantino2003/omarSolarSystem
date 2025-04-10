@@ -118,7 +118,8 @@ export function CameraControls({
       ) {
         return; 
       }
-      if (event.touches.length === 1) {
+      if (event.touches.length >= 1) {
+        event.preventDefault();
         isDragging = true;
         previousX = event.touches[0].clientX;
         previousY = event.touches[0].clientY;
@@ -141,7 +142,7 @@ export function CameraControls({
       }
 
       if (!isDragging) return;
-
+      event.preventDefault();
       if (event.touches.length === 1) {
         const deltaX = event.touches[0].clientX - previousX;
         const deltaY = event.touches[0].clientY - previousY;
@@ -157,7 +158,7 @@ export function CameraControls({
         const deltaDistance = previousTouchDistance - currentTouchDistance;
 
         const minZoom = getMinZoom(followedPlanet);
-        const zoomSpeed = zoomDistanceRef.current * 0.0001;
+        const zoomSpeed = zoomDistanceRef.current * 0.001;
         zoomDistanceRef.current += deltaDistance * zoomSpeed * 20;
         zoomDistanceRef.current = Math.max(minZoom, Math.min(MAX_ZOOM, zoomDistanceRef.current));
         previousTouchDistance = currentTouchDistance;
