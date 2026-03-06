@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🪐 Omar's Solar System
 
-## Getting Started
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://omars-solar-system.vercel.app/) [![Three.js](https://img.shields.io/badge/3D_Engine-Three.js-white?logo=three.js)](#) [![React](https://img.shields.io/badge/Frontend-React-blue?logo=react)](#) [![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue?logo=typescript)](#)
+[![Español](https://img.shields.io/badge/Language-Espa%C3%B1ol-green)](#español) [![English](https://img.shields.io/badge/Language-English-blue)](#english) 
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<a id="español"></a>
+## 🇪🇸 Español
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Omar's Solar System** es una experiencia de visualización 3D interactiva construida con Three.js y React. El proyecto renderiza nuestro vecindario cósmico directamente en el navegador, enfocándose en la precisión visual y la representación matemática de las mecánicas orbitales.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🔭 Características Principales
+* **Física Orbital Dinámica:** Simulación del movimiento planetario en tiempo real, calculando trayectorias que incluyen la excentricidad real de las órbitas.
+* **Escala y Proporción:** Representación de los tamaños planetarios a escala relativa para apreciar las diferencias de masa y volumen entre los cuerpos celestes.
+* **Cuerpos Extendidos:** El sistema no se limita a los 8 planetas principales; incluye la renderización de las lunas más importantes y planetas enanos.
+* **Exploración Interactiva:** Controles de cámara fluidos que permiten al usuario navegar por el espacio, hacer zoom y rotar libremente alrededor de los cuerpos celestes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🌐 Aplicación en Vivo
+Explora el sistema solar interactivo aquí:  
+**[https://omars-solar-system.vercel.app/](https://omars-solar-system.vercel.app/)**
 
-## Learn More
+### 🛠️ Stack Tecnológico
+* **Motor 3D:** Three.js
+* **Framework y Lógica:** React, TypeScript
+* **Estructura:** HTML5, CSS3
+* **Despliegue:** Vercel
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<a id="english"></a>
+## 🇬🇧 English
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Omar's Solar System** is an interactive 3D visualization experience built with Three.js and React. The project renders our cosmic neighborhood directly in the browser, focusing on visual accuracy and the mathematical representation of orbital mechanics.
 
-## Deploy on Vercel
+### 🔭 Key Features
+* **Dynamic Orbital Physics:** Real-time simulation of planetary movement, calculating trajectories that factor in the actual eccentricity of the orbits.
+* **Accurate Scaling:** Planetary sizes are rendered to a relative scale to properly showcase the massive differences in volume across celestial bodies.
+* **Extended Celestial Bodies:** The system goes beyond the 8 major planets, including the rendering of major moons and dwarf planets.
+* **Interactive Exploration:** Fluid camera controls that allow the user to navigate through space, zoom in, and freely rotate around celestial bodies.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🌐 Live Application
+Explore the interactive solar system here:  
+**[https://omars-solar-system.vercel.app/](https://omars-solar-system.vercel.app/)**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🛠️ Tech Stack
+* **3D Engine:** Three.js
+* **Framework & Logic:** React, TypeScript
+* **Structure:** HTML5, CSS3
+* **Deployment:** Vercel
