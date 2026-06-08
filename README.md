@@ -8,16 +8,15 @@
 <a id="español"></a>
 ## 🇪🇸 Español
 
-**Omar's Solar System** es una experiencia de visualización 3D interactiva construida con Three.js y React. El proyecto renderiza nuestro vecindario cósmico directamente en el navegador, enfocándose en la precisión visual y la representación matemática de las mecánicas orbitales.
+Experiencia de visualización 3D interactiva construida con Three.js y React. El proyecto renderiza nuestro vecindario cósmico directamente en el navegador, enfocándose en la precisión visual y la representación matemática de las mecánicas orbitales.
 
-### 🔭 Características Principales
+###  Características Principales
 * **Física Orbital Dinámica:** Simulación del movimiento planetario en tiempo real, calculando trayectorias que incluyen la excentricidad real de las órbitas.
 * **Escala y Proporción:** Representación de los tamaños planetarios a escala relativa para apreciar las diferencias de masa y volumen entre los cuerpos celestes.
 * **Cuerpos Extendidos:** El sistema no se limita a los 8 planetas principales; incluye la renderización de las lunas más importantes y planetas enanos.
 * **Exploración Interactiva:** Controles de cámara fluidos que permiten al usuario navegar por el espacio, hacer zoom y rotar libremente alrededor de los cuerpos celestes.
 
 ### 🌐 Aplicación en Vivo
-Explora el sistema solar interactivo aquí:  
 **[https://omars-solar-system.vercel.app/](https://omars-solar-system.vercel.app/)**
 
 ### 🛠️ Stack Tecnológico
@@ -31,16 +30,15 @@ Explora el sistema solar interactivo aquí:
 <a id="english"></a>
 ## 🇬🇧 English
 
-**Omar's Solar System** is an interactive 3D visualization experience built with Three.js and React. The project renders our cosmic neighborhood directly in the browser, focusing on visual accuracy and the mathematical representation of orbital mechanics.
+Interactive 3D visualization experience built with Three.js and React. The project renders our cosmic neighborhood directly in the browser, focusing on visual accuracy and the mathematical representation of orbital mechanics.
 
-### 🔭 Key Features
+###  Key Features
 * **Dynamic Orbital Physics:** Real-time simulation of planetary movement, calculating trajectories that factor in the actual eccentricity of the orbits.
 * **Accurate Scaling:** Planetary sizes are rendered to a relative scale to properly showcase the massive differences in volume across celestial bodies.
 * **Extended Celestial Bodies:** The system goes beyond the 8 major planets, including the rendering of major moons and dwarf planets.
 * **Interactive Exploration:** Fluid camera controls that allow the user to navigate through space, zoom in, and freely rotate around celestial bodies.
 
-### 🌐 Live Application
-Explore the interactive solar system here:  
+###  Live Application
 **[https://omars-solar-system.vercel.app/](https://omars-solar-system.vercel.app/)**
 
 ### 🛠️ Tech Stack
